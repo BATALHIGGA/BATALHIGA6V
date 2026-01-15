@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BATALHIGA V6 - Updated Edition</title>
+    <title>BATALHIGA V7 - Chaos & Reaper Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap');
@@ -156,6 +156,31 @@
             border-radius: 4px;
         }
 
+        /* Toggle Switch Style */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #68D391;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #68D391;
+        }
+
+        /* Timer Bar */
+        #timer-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        #timer-bar-fill {
+            height: 100%;
+            background: var(--neon-theme);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
     </style>
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center pb-20">
@@ -167,7 +192,7 @@
         <h1 class="text-5xl font-orbitron font-bold tracking-tighter" style="color: var(--neon-theme); text-shadow: 0 0 15px var(--neon-theme);">
             BATAL<span class="text-white">HIGA</span>
         </h1>
-        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V6 - Updated Edition</p>
+        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V7 - Chaos & Reaper</p>
     </header>
 
     <main class="w-full max-w-lg flex flex-col gap-5 relative">
@@ -190,16 +215,10 @@
         <!-- START SCREEN -->
         <div id="start-screen" class="glass-effect p-6 rounded-3xl shadow-2xl">
             <h2 class="text-2xl font-orbitron font-bold mb-4 text-white text-center uppercase tracking-widest border-b border-slate-700 pb-4">Manual de Jogo</h2>
-            <div class="mb-6 p-4 bg-black/40 rounded-2xl text-slate-300 text-sm leading-relaxed text-justify h-64 overflow-y-auto history-scroll">
+            <div class="mb-6 p-4 bg-black/40 rounded-2xl text-slate-300 text-sm leading-relaxed text-justify h-48 overflow-y-auto history-scroll">
                 
                 <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Número de jogadores:</p>
                 <p class="mb-4 text-xs">2 a 4.</p>
-
-                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Início do jogo:</p>
-                <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
-                    <li>A ordem inicial dos jogadores é aleatória.</li>
-                    <li>Cada jogador começa com 5 pontos.</li>
-                </ul>
 
                 <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Funcionamento por rodada:</p>
                 <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
@@ -218,7 +237,7 @@
 
                 <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Fim do jogo:</p>
                 <ul class="list-disc pl-4 space-y-1 text-xs">
-                    <li>Um jogador chega a 10 pontos.</li>
+                    <li>Um jogador chega a 10 pontos (Ou ativa o Ceifador).</li>
                     <li>OU Todos os outros jogadores chegam a 0 pontos, sobrando apenas 1.</li>
                 </ul>
             </div>
@@ -240,8 +259,53 @@
 
         <!-- NAMES SCREEN -->
         <div id="names-screen" class="hidden glass-effect p-6 rounded-3xl animate-fade-in">
-            <h2 class="text-xl font-orbitron font-bold mb-6 text-center uppercase tracking-widest">Identificação</h2>
+            <h2 class="text-xl font-orbitron font-bold mb-4 text-center uppercase tracking-widest">Identificação</h2>
             <div id="names-container" class="flex flex-col gap-3 mb-6"></div>
+
+            <!-- CONFIGURATION SECTION -->
+            <div class="border-t border-slate-700 pt-4 mb-6">
+                <h3 class="text-sm font-orbitron font-bold mb-3 text-center uppercase text-slate-400 tracking-widest">Regras da Partida</h3>
+                
+                <!-- TEMPO -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">⏱️ Limite de Tempo</span>
+                        <button onclick="showOptionInfo('tempo')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <select id="config-timer" class="bg-slate-900 border border-slate-600 text-white text-xs p-2 rounded-lg outline-none w-28 text-center font-bold">
+                        <option value="0">Sem Tempo</option>
+                        <option value="15">15s</option>
+                        <option value="30">30s</option>
+                        <option value="45">45s</option>
+                        <option value="60">60s</option>
+                    </select>
+                </div>
+
+                <!-- CEIFADOR -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">💀 Modo Ceifador</span>
+                        <button onclick="showOptionInfo('ceifador')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-reaper" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                    </label>
+                </div>
+
+                <!-- CAOS -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">🌀 Modo Caos</span>
+                        <button onclick="showOptionInfo('caos')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-chaos" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                </div>
+            </div>
+
             <button onclick="startGame()" class="w-full bg-cyan-600 text-white font-orbitron font-bold py-4 rounded-xl text-lg uppercase active:scale-95">
                 Iniciar
             </button>
@@ -249,6 +313,17 @@
 
         <!-- GAME UI -->
         <div id="players-status" class="hidden grid grid-cols-2 gap-2"></div>
+
+        <!-- TIMER BAR DISPLAY -->
+        <div id="game-timer-wrapper" class="hidden px-2">
+            <div class="flex justify-between text-[10px] text-slate-400 font-bold mb-1 uppercase">
+                <span>Tempo do Turno</span>
+                <span id="timer-text">--s</span>
+            </div>
+            <div id="timer-bar-container">
+                <div id="timer-bar-fill"></div>
+            </div>
+        </div>
 
         <div id="game-screen" class="hidden flex flex-col gap-4">
             
@@ -408,7 +483,7 @@
     </main>
 
     <script>
-        // --- BANCO DE DADOS COMPLETO (V3 + ESTRUTURA) ---
+        // --- BANCO DE DADOS COMPLETO ---
         const database = {
             "Carbono": { "formal": ["Este elemento é o principal responsável por transformar ferro em aço", "Pequenas quantidades já alteram drasticamente a dureza", "Aumenta significativamente a resistência mecânica", "Contribui fortemente para o aumento da dureza", "Reduz a ductilidade do material", "Em excesso, torna o aço mais frágil", "Afeta diretamente a soldabilidade de forma negativa", "Está presente em praticamente todos os aços", "Seu controle é essencial em tratamentos térmicos", "Atua como elemento endurecedor básico", "Influencia a resistência ao desgaste", "Não aumenta a resistência à abrasão", "É decisivo para a formação de martensita", "Quanto maior seu teor, mais difícil é a usinagem", "Não melhora a resistência à corrosão", "Não atua como desoxidante principal", "É o elemento de liga mais fundamental", "Está associado à perda de tenacidade em altos teores", "Afeta o equilíbrio entre dureza e ductilidade", "É o primeiro elemento considerado no projeto de um aço", "Geralmente piora o desempenho em altas temperaturas", "Está ligado ao aumento da resistência ao impacto apenas em baixos teores", "Controla o limite de escoamento", "Influencia diretamente a microestrutura", "Seu excesso pode causar trincas", "É essencial, mas perigoso se mal dosado", "Interfere negativamente na soldagem", "Atua em quase todas as propriedades mecânicas", "É o elemento mais simples e mais importante", "Sem ele, não existe aço"], "informal": ["Define se o aço vira arame ou uma faca de corte.","É o 'combustível' da têmpera.","Inimigo número 1 do soldador.","Dá a 'alma' ao metal.","Responsável por aquele fio de navalha duradouro.","Em níveis baixos, é fácil de amassar com a mão.","Faz o metal 'gritar' se resfriar rápido demais.","O elemento mais barato para ganhar força.","Muito abundante na natureza.","O mestre da dureza básica."] },
             "Manganês": { "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Não melhora a temperabilidade", "Atua como desoxidante no aço líquido", "Ajuda a neutralizar os efeitos do enxofre", "Não melhora a resistência ao desgaste", "Não contribui para a resistência à abrasão", "Não aumenta a resistência ao impacto", "Não reduz drasticamente a soldabilidade", "É comum em aços estruturais", "Melhora a qualidade metalúrgica do aço", "Auxilia na remoção de impurezas", "Atua em conjunto com o carbono", "Aumenta a resistência sem fragilizar tanto", "Ajuda no controle da microestrutura", "Melhora a resistência à corrosão", "Atua fortemente em tratamentos térmicos", "Reduz defeitos causados pelo enxofre", "Melhora a homogeneidade do aço", "É um elemento de liga de baixo custo", "Muito usado em aços comerciais", "Contribui para a resistência em aplicações mecânicas", "Não atua em altas temperaturas", "Não é um elemento nobre", "Tem papel importante na desoxidação", "Aumenta a resistência geral do aço", "Atua na formação de soluções sólidas", "Melhora propriedades sem comprometer muito a ductilidade", "É comum em quase todos os aços carbono", "Atua mais como reforço estrutural do que químico"], "informal": ["O faxineiro do aço líquido.","Segredo dos trilhos de trem pesados.","Fica mais resistente graças a sua ação desoxidante.","Impede que o enxofre destrua a liga.","O braço direito do Carbono.","Brasil é um dos maiores produtores.","Evita que o aço vire 'biscoito' ao forjar.","Limpa o oxigênio na fabricação.","O elemento do equilíbrio industrial.","Essencial para pontes e prédios."] },
@@ -441,6 +516,20 @@
             osc.stop(audioCtx.currentTime + 0.1);
         }
 
+        function playError() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
         let numPlayers = 2;
         let players = [];
         let currentPlayerIdx = 0;
@@ -448,7 +537,7 @@
         let currentDicas = [];
         let playerActionTaken = false;
         let currentEvent = null;
-        let isFirstRound = true; // Nova flag
+        let isFirstRound = true;
         
         // Estado dos Novos Eventos
         let betPot = 0;
@@ -456,6 +545,15 @@
         let underdogClicks = 0;
         let shopActionUsed = false;
         let skipNextPlayerId = null; 
+
+        // CONFIGURAÇÕES GLOBAIS
+        let configTimer = 0; // 0 = off
+        let configReaper = false;
+        let configChaos = false;
+        
+        // ESTADO DO TIMER
+        let timerInterval = null;
+        let timeLeft = 0;
 
         // Descrições dos eventos para o botão info
         const eventDescriptions = {
@@ -469,6 +567,12 @@
             'CAPITALIST': 'LOJA ABERTA: Compre poderes especiais com seus pontos.'
         };
 
+        const optionDescriptions = {
+            'tempo': 'Ao selecionar essa opção, o turno é limitado. Se o tempo acabar, o jogador perde 3 pontos e passa a vez!',
+            'ceifador': 'Quando um player chegar a 10 pontos, ele deve ELIMINAR um oponente para continuar jogando (volta para 5 pontos).',
+            'caos': 'Modo em que TODAS as rodadas são especiais (Inclusive a primeira)! Prepare-se para a bagunça.'
+        };
+
         // Referência e Histórico
         function openRefTable() {
             playClick();
@@ -477,6 +581,23 @@
         function closeRefTable() {
             playClick();
             document.getElementById('ref-modal').classList.add('hidden');
+        }
+
+        function showOptionInfo(type) {
+            playClick();
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+            const inputArea = document.getElementById('modal-input-area');
+
+            modal.classList.remove('hidden');
+            inputArea.classList.add('hidden');
+            icon.innerText = "ℹ️";
+            title.innerText = "INFO DA REGRA";
+            desc.innerText = optionDescriptions[type];
+            actions.innerHTML = `<button onclick="document.getElementById('generic-modal').classList.add('hidden')" class="w-full bg-slate-700 text-white font-bold py-3 rounded-xl">ENTENDI</button>`;
         }
 
         function setPlayersCount(num) {
@@ -507,6 +628,12 @@
 
         function startGame() {
             playClick();
+            
+            // Ler Configurações
+            configTimer = parseInt(document.getElementById('config-timer').value);
+            configReaper = document.getElementById('config-reaper').checked;
+            configChaos = document.getElementById('config-chaos').checked;
+
             players = [];
             isFirstRound = true; // Reseta na partida nova
             for(let i=1; i<=numPlayers; i++) {
@@ -516,6 +643,12 @@
             document.getElementById('names-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
             document.getElementById('players-status').classList.remove('hidden');
+            
+            if (configTimer > 0) {
+                document.getElementById('game-timer-wrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('game-timer-wrapper').classList.add('hidden');
+            }
             
             initRound();
         }
@@ -538,16 +671,28 @@
             document.getElementById('shop-panel').classList.add('hidden');
             document.body.removeAttribute('data-event');
 
-            // --- LÓGICA DE EVENTOS (40% de chance) ---
-            // UPDATE: NUNCA ter evento na primeira rodada
-            if (isFirstRound) {
-                isFirstRound = false;
-                currentEvent = null;
-            } else if (Math.random() < 0.40) {
+            // --- LÓGICA DE EVENTOS ---
+            // Se CAOS estiver ligado, SEMPRE tem evento (100%), mesmo na rodada 1
+            // Se CAOS desligado, segue regra normal (40% e nada na rodada 1)
+            
+            let shouldTriggerEvent = false;
+
+            if (configChaos) {
+                shouldTriggerEvent = true;
+            } else {
+                if (isFirstRound) {
+                    isFirstRound = false;
+                    shouldTriggerEvent = false;
+                } else if (Math.random() < 0.40) {
+                    shouldTriggerEvent = true;
+                }
+            }
+
+            if (shouldTriggerEvent) {
                 const pool = ['DOUBLE', 'TRIPLE', 'THIEF', 'LIMIT', 'CHAOS', 'CAPITALIST'];
                 const activePlayers = players.filter(p => p.active);
                 
-                // UPDATE: UNDERDOG apenas se houver 1 único perdedor
+                // UNDERDOG apenas se houver 1 único perdedor
                 const scores = activePlayers.map(p => p.score);
                 const minScore = Math.min(...scores);
                 const countMin = scores.filter(s => s === minScore).length;
@@ -555,7 +700,7 @@
                     pool.push('UNDERDOG');
                 }
 
-                // UPDATE: BET Apenas se ninguém tiver 1 ponto
+                // BET Apenas se ninguém tiver 1 ponto
                 const hasCriticalScore = activePlayers.some(p => p.score <= 1);
                 if (!hasCriticalScore) {
                     pool.push('BET');
@@ -651,6 +796,7 @@
         }
 
         function openBetModal() {
+            stopTimer(); // Pausa timer se estiver rodando (embora initRound seja antes do timer)
             const modal = document.getElementById('generic-modal');
             const title = document.getElementById('modal-title');
             const desc = document.getElementById('modal-desc');
@@ -683,7 +829,6 @@
             const input = document.getElementById('modal-number-input');
             let amount = parseInt(input.value) || 0;
             
-            // UPDATE: Validação de aposta
             if (amount <= 0) {
                 alert("A aposta deve ser de pelo menos 1 ponto!");
                 return;
@@ -734,9 +879,77 @@
             }
         }
 
+        // --- TIMER LOGIC ---
+        function startTimer() {
+            if (configTimer <= 0) return;
+            
+            stopTimer(); // Limpa anterior
+            timeLeft = configTimer;
+            updateTimerUI();
+
+            const barFill = document.getElementById('timer-bar-fill');
+            barFill.style.width = '100%';
+            barFill.style.transition = 'none'; // Reset imediato
+
+            // Força reflow
+            void barFill.offsetWidth;
+
+            barFill.style.transition = `width ${configTimer}s linear`;
+            barFill.style.width = '0%';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-text').innerText = `${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('timer-bar-fill').style.width = '100%'; // Reset visual opcional
+            document.getElementById('timer-bar-fill').style.transition = 'none';
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-text').innerText = `${timeLeft}s`;
+        }
+
+        function handleTimeout() {
+            playError();
+            shakeScreen();
+            const p = players[currentPlayerIdx];
+            p.score -= 3;
+            
+            // Modal de Aviso Rápido
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+
+            modal.classList.remove('hidden');
+            icon.innerText = "⌛";
+            title.innerText = "TEMPO ESGOTADO!";
+            desc.innerText = `${p.name} demorou demais e perdeu 3 pontos!`;
+            actions.innerHTML = "";
+            document.getElementById('modal-input-area').classList.add('hidden');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                checkLoseCondition(p, true); // true = trigger next turn
+            }, 2000);
+        }
+
         function rotatePlayer() {
             const activePlayers = players.filter(p => p.active);
             if (activePlayers.length === 0) return;
+
+            stopTimer(); // Para timer do anterior
 
             shopActionUsed = false;
             underdogClicks = 0;
@@ -756,10 +969,14 @@
             if (players[currentPlayerIdx].id === skipNextPlayerId) {
                 skipNextPlayerId = null; 
                 rotatePlayer(); 
+                return;
             }
 
             updatePassButton();
             updateShopButtons();
+            
+            // Inicia timer para o novo jogador
+            startTimer();
         }
 
         function updateStatus() {
@@ -908,6 +1125,8 @@
 
         function checkGuess() {
             playClick();
+            stopTimer(); // Para o timer ao arriscar
+
             const val = document.getElementById('guess-input').value;
             if (!val) return;
             const p = players[currentPlayerIdx];
@@ -943,7 +1162,7 @@
                 shakeScreen();
                 p.score -= 1;
 
-                // UPDATE: Eliminar a opção errada do select
+                // Eliminar a opção errada do select
                 const select = document.getElementById('guess-input');
                 const wrongOption = select.querySelector(`option[value="${val}"]`);
                 if (wrongOption) wrongOption.remove();
@@ -1013,8 +1232,66 @@
         }
 
         function checkWinCondition(p) {
-            if(p.score >= 10) showFinalWin(p);
-            else initRound(false);
+            if (p.score >= 10) {
+                if (configReaper) {
+                    // MODO CEIFADOR ATIVO
+                    showReaperModal(p);
+                } else {
+                    showFinalWin(p);
+                }
+            } else {
+                initRound(false);
+            }
+        }
+
+        // --- REAPER LOGIC ---
+        function showReaperModal(killer) {
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+
+            const targets = players.filter(p => p.id !== killer.id && p.active);
+
+            // Se não sobrar ninguém, venceu de qualquer jeito
+            if (targets.length === 0) {
+                showFinalWin(killer);
+                return;
+            }
+
+            modal.classList.remove('hidden');
+            icon.innerText = "💀";
+            title.innerText = "HORA DA CEIFA!";
+            desc.innerText = `Parabéns ${killer.name}! Você atingiu 10 pontos. Escolha uma vítima para ELIMINAR permanentemente do jogo.`;
+            actions.innerHTML = "";
+            document.getElementById('modal-input-area').classList.add('hidden');
+
+            targets.forEach(target => {
+                actions.innerHTML += `<button onclick="handleReaperKill(${target.id})" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg uppercase border border-red-500">ELIMINAR ${target.name}</button>`;
+            });
+        }
+
+        function handleReaperKill(targetId) {
+            const modal = document.getElementById('generic-modal');
+            modal.classList.add('hidden');
+            
+            const killer = players[currentPlayerIdx];
+            const victim = players.find(p => p.id === targetId);
+            
+            victim.active = false;
+            killer.score = 5; // Reseta para 5
+
+            // Mostra mensagem de eliminação
+            alert(`${victim.name} FOI CEIFADO! ${killer.name} volta para 5 pontos.`);
+
+            // Verifica se só sobrou o Killer
+            const survivors = players.filter(p => p.active);
+            if (survivors.length === 1) {
+                showFinalWin(killer);
+            } else {
+                initRound(false); // Continua o jogo
+            }
         }
 
         function checkLoseCondition(p, triggerNext) {
@@ -1041,6 +1318,7 @@
 
         function nextTurn() {
             playClick();
+            stopTimer(); // Garante que parou
             playerActionTaken = false;
             document.getElementById('guess-input').value = "";
             document.getElementById('clue-display').innerText = "Toque em um número...";
@@ -1049,18 +1327,20 @@
         }
 
         function showFinalWin(winner) {
+            stopTimer();
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('players-status').classList.add('hidden');
             document.getElementById('event-display').classList.add('hidden');
             document.getElementById('shop-panel').classList.add('hidden');
             document.getElementById('pot-display').classList.add('hidden');
             document.getElementById('ref-modal').classList.add('hidden');
+            document.getElementById('game-timer-wrapper').classList.add('hidden');
             
             const screen = document.getElementById('win-screen');
             screen.classList.remove('hidden');
             if (winner) {
                 document.getElementById('winner-title').innerText = `${winner.name} VENCEU!`;
-                document.getElementById('win-message').innerText = `O mestre da liga conquistou ${winner.score} pontos. O último elemento era ${currentElement}.`;
+                document.getElementById('win-message').innerText = `O mestre da liga conquistou a vitória final. O último elemento era ${currentElement}.`;
             } else {
                 document.getElementById('winner-title').innerText = `EMPATE TÉCNICO`;
                 document.getElementById('win-message').innerText = `Todos foram eliminados.`;
