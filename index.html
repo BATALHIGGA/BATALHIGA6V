@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BATALHIGA V7 - Chaos & Reaper Edition</title>
+    <title>BATALHIGA - Final Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap');
@@ -34,6 +34,7 @@
         body[data-event="BET"] { --neon-theme: #00ff00; }
         body[data-event="UNDERDOG"] { --neon-theme: #0088ff; }
         body[data-event="CAPITALIST"] { --neon-theme: #ffffff; }
+        body[data-event="BLIND"] { --neon-theme: #444444; } /* Cinza Escuro */
         
         body:not([data-event]) { --neon-theme: var(--neon-blue); }
 
@@ -83,6 +84,21 @@
             font-weight: bold;
             border: 1px solid var(--neon-theme);
             color: var(--neon-theme);
+        }
+
+        /* Estilo BLIND MODE - Esconde Pontos */
+        body[data-event="BLIND"] .score-pill {
+            color: transparent !important;
+            text-shadow: 0 0 8px rgba(255,255,255,0.5);
+            position: relative;
+        }
+        body[data-event="BLIND"] .score-pill::after {
+            content: "??";
+            position: absolute;
+            color: white;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .event-banner {
@@ -181,6 +197,19 @@
             transition: width 1s linear;
         }
 
+        /* Reveal Overlay */
+        #reveal-overlay {
+            background: radial-gradient(circle at center, #1a202c 0%, #000000 100%);
+        }
+        .reveal-name {
+            animation: revealPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.5) translateY(20px);
+        }
+        @keyframes revealPop {
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
     </style>
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center pb-20">
@@ -188,11 +217,11 @@
     <!-- Spark Effect Container -->
     <div class="event-sparks"></div>
 
-    <header class="text-center mt-2 mb-4 w-full">
+    <header class="text-center mt-2 mb-4 w-full relative">
         <h1 class="text-5xl font-orbitron font-bold tracking-tighter" style="color: var(--neon-theme); text-shadow: 0 0 15px var(--neon-theme);">
             BATAL<span class="text-white">HIGA</span>
         </h1>
-        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V7 - Chaos & Reaper</p>
+        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V-FINAL</p>
     </header>
 
     <main class="w-full max-w-lg flex flex-col gap-5 relative">
@@ -258,8 +287,12 @@
         </div>
 
         <!-- NAMES SCREEN -->
-        <div id="names-screen" class="hidden glass-effect p-6 rounded-3xl animate-fade-in">
-            <h2 class="text-xl font-orbitron font-bold mb-4 text-center uppercase tracking-widest">Identificação</h2>
+        <div id="names-screen" class="hidden glass-effect p-6 rounded-3xl animate-fade-in relative">
+            <button onclick="backToStart()" class="absolute top-6 left-6 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                ← Voltar
+            </button>
+
+            <h2 class="text-xl font-orbitron font-bold mb-4 text-center uppercase tracking-widest mt-6">Identificação</h2>
             <div id="names-container" class="flex flex-col gap-3 mb-6"></div>
 
             <!-- CONFIGURATION SECTION -->
@@ -279,6 +312,30 @@
                         <option value="45">45s</option>
                         <option value="60">60s</option>
                     </select>
+                </div>
+
+                <!-- RANDOM ORDER -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">🎲 Ordem Aleatória</span>
+                        <button onclick="showOptionInfo('randomorder')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-random-order" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+
+                <!-- NO CONSULT -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">🚫 Sem Consulta</span>
+                        <button onclick="showOptionInfo('noconsult')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-no-consult" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                    </label>
                 </div>
 
                 <!-- CEIFADOR -->
@@ -306,9 +363,17 @@
                 </div>
             </div>
 
-            <button onclick="startGame()" class="w-full bg-cyan-600 text-white font-orbitron font-bold py-4 rounded-xl text-lg uppercase active:scale-95">
+            <button onclick="tryStartGame()" class="w-full bg-cyan-600 text-white font-orbitron font-bold py-4 rounded-xl text-lg uppercase active:scale-95">
                 Iniciar
             </button>
+        </div>
+
+        <!-- REVEAL ORDER SCREEN (Overlay) -->
+        <div id="reveal-overlay" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center">
+            <h2 id="reveal-title" class="text-3xl font-orbitron font-bold text-cyan-400 mb-10 animate-pulse">DEFININDO ORDEM...</h2>
+            <div id="reveal-container" class="flex flex-col gap-4 w-full max-w-sm">
+                <!-- Names will be injected here -->
+            </div>
         </div>
 
         <!-- GAME UI -->
@@ -361,7 +426,7 @@
                     <div id="clue-display" class="flex-grow bg-slate-950 p-4 rounded-2xl border-2 text-center text-lg font-semibold text-white shadow-inner flex items-center justify-center leading-tight transition-colors" style="border-color: var(--neon-theme); min-height: 80px;">
                         Toque em um número...
                     </div>
-                    <button onclick="openRefTable()" class="w-16 bg-slate-800 border border-slate-600 rounded-2xl flex flex-col items-center justify-center text-white active:scale-95 shadow-lg">
+                    <button id="btn-ref-table" onclick="openRefTable()" class="w-16 bg-slate-800 border border-slate-600 rounded-2xl flex flex-col items-center justify-center text-white active:scale-95 shadow-lg">
                         <span class="text-2xl">📘</span>
                         <span class="text-[8px] font-bold mt-1 uppercase">Tabela</span>
                     </button>
@@ -460,17 +525,17 @@
 
         <!-- MODALS GENERICO -->
         <div id="generic-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-6 backdrop-blur-sm">
-            <div class="bg-slate-900 border-2 border-white p-6 rounded-3xl w-full max-w-sm text-center animate-fade-in">
-                <div id="modal-icon" class="text-5xl mb-4">🔔</div>
-                <h3 id="modal-title" class="text-xl font-orbitron font-bold text-white mb-2 uppercase"></h3>
-                <p id="modal-desc" class="text-slate-300 text-sm mb-6"></p>
+            <div class="bg-slate-900 border-2 border-white p-6 rounded-3xl w-full max-w-sm text-center animate-fade-in relative overflow-hidden">
+                <div id="modal-icon" class="text-5xl mb-4 relative z-10">🔔</div>
+                <h3 id="modal-title" class="text-xl font-orbitron font-bold text-white mb-2 uppercase relative z-10"></h3>
+                <p id="modal-desc" class="text-slate-300 text-sm mb-6 relative z-10"></p>
                 
                 <!-- Input Area (Hidden by default) -->
-                <div id="modal-input-area" class="hidden mb-4">
+                <div id="modal-input-area" class="hidden mb-4 relative z-10">
                     <input type="number" id="modal-number-input" class="bg-black border border-slate-600 text-white text-center text-2xl p-2 rounded-lg w-24" placeholder="0">
                 </div>
 
-                <div id="modal-actions" class="flex flex-col gap-2"></div>
+                <div id="modal-actions" class="flex flex-col gap-2 relative z-10"></div>
             </div>
         </div>
 
@@ -502,6 +567,7 @@
         };
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         function playClick() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
@@ -544,12 +610,14 @@
         let underdogId = null;
         let underdogClicks = 0;
         let shopActionUsed = false;
-        let skipNextPlayerId = null; 
+        let skipNextPlayerId = null;
 
         // CONFIGURAÇÕES GLOBAIS
         let configTimer = 0; // 0 = off
         let configReaper = false;
         let configChaos = false;
+        let configRandomOrder = false;
+        let configNoConsult = false;
         
         // ESTADO DO TIMER
         let timerInterval = null;
@@ -564,13 +632,16 @@
             'CHAOS': 'ORDEM ALEATÓRIA: A vez não segue a ordem normal dos jogadores.',
             'BET': 'MODO APOSTA: O vencedor leva o pote acumulado!',
             'UNDERDOG': 'AZARÃO NO COMANDO: O último colocado joga com 2 dicas por turno.',
-            'CAPITALIST': 'LOJA ABERTA: Compre poderes especiais com seus pontos.'
+            'CAPITALIST': 'LOJA ABERTA: Compre poderes especiais com seus pontos.',
+            'BLIND': 'RODADA CEGA: Pontos ocultos e as dicas somem ao passar a vez! Memória é tudo.'
         };
 
         const optionDescriptions = {
             'tempo': 'Ao selecionar essa opção, o turno é limitado. Se o tempo acabar, o jogador perde 3 pontos e passa a vez!',
             'ceifador': 'Quando um player chegar a 10 pontos, ele deve ELIMINAR um oponente para continuar jogando (volta para 5 pontos).',
-            'caos': 'Modo em que TODAS as rodadas são especiais (Inclusive a primeira)! Prepare-se para a bagunça.'
+            'caos': 'Modo em que TODAS as rodadas são especiais (Inclusive a primeira)! Prepare-se para a bagunça.',
+            'noconsult': 'Remove o botão da Tabela de Consulta durante o jogo. Para quem manja de verdade!',
+            'randomorder': 'Em vez de seguir a ordem de cadastro (P1, P2...), o jogo embaralha e decide quem começa e a sequência dos turnos.'
         };
 
         // Referência e Histórico
@@ -594,9 +665,10 @@
 
             modal.classList.remove('hidden');
             inputArea.classList.add('hidden');
+            
             icon.innerText = "ℹ️";
             title.innerText = "INFO DA REGRA";
-            desc.innerText = optionDescriptions[type];
+            desc.innerText = optionDescriptions[type] || "Sem descrição.";
             actions.innerHTML = `<button onclick="document.getElementById('generic-modal').classList.add('hidden')" class="w-full bg-slate-700 text-white font-bold py-3 rounded-xl">ENTENDI</button>`;
         }
 
@@ -626,21 +698,93 @@
             }
         }
 
-        function startGame() {
+        function backToStart() {
+            playClick();
+            document.getElementById('names-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        async function tryStartGame() {
             playClick();
             
             // Ler Configurações
             configTimer = parseInt(document.getElementById('config-timer').value);
             configReaper = document.getElementById('config-reaper').checked;
             configChaos = document.getElementById('config-chaos').checked;
+            configRandomOrder = document.getElementById('config-random-order').checked;
+            configNoConsult = document.getElementById('config-no-consult').checked;
 
+            // Coletar Players
             players = [];
-            isFirstRound = true; // Reseta na partida nova
+            const colors = ['#00f2ff', '#ffd700', '#ff0055', '#00ff66'];
             for(let i=1; i<=numPlayers; i++) {
                 let name = document.getElementById(`name-p${i}`).value.trim().toUpperCase() || `P${i}`;
-                players.push({ id: i, name: name, score: 5, active: true, passes: 3 });
+                players.push({ 
+                    id: i, 
+                    name: name, 
+                    score: 5, 
+                    active: true, 
+                    passes: 3, 
+                    color: colors[i-1] 
+                });
             }
+
             document.getElementById('names-screen').classList.add('hidden');
+            
+            if (configRandomOrder) {
+                await revealRandomOrder();
+            } else {
+                actualStartGame();
+            }
+        }
+
+        function revealRandomOrder() {
+            return new Promise(resolve => {
+                players.sort(() => Math.random() - 0.5);
+
+                const overlay = document.getElementById('reveal-overlay');
+                const container = document.getElementById('reveal-container');
+                const title = document.getElementById('reveal-title');
+
+                overlay.classList.remove('hidden');
+                container.innerHTML = "";
+                title.innerText = "DEFININDO ORDEM...";
+
+                let delay = 1000;
+
+                players.forEach((p, index) => {
+                    setTimeout(() => {
+                        playClick();
+                        const div = document.createElement('div');
+                        div.className = "reveal-name bg-slate-800 border border-cyan-500 p-4 rounded-xl text-white font-bold text-xl uppercase shadow-[0_0_20px_rgba(0,242,255,0.3)]";
+                        div.innerText = `${index + 1}º - ${p.name}`;
+                        container.appendChild(div);
+                    }, delay);
+                    delay += 1000;
+                });
+
+                setTimeout(() => {
+                    title.innerText = "JOGO INICIANDO!";
+                    title.classList.add('text-green-400');
+                    playClick();
+                }, delay);
+
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    actualStartGame();
+                    resolve();
+                }, delay + 1500);
+            });
+        }
+
+        function actualStartGame() {
+            if (configNoConsult) {
+                document.getElementById('btn-ref-table').classList.add('hidden');
+            } else {
+                document.getElementById('btn-ref-table').classList.remove('hidden');
+            }
+
+            isFirstRound = true;
             document.getElementById('game-screen').classList.remove('hidden');
             document.getElementById('players-status').classList.remove('hidden');
             
@@ -672,9 +816,6 @@
             document.body.removeAttribute('data-event');
 
             // --- LÓGICA DE EVENTOS ---
-            // Se CAOS estiver ligado, SEMPRE tem evento (100%), mesmo na rodada 1
-            // Se CAOS desligado, segue regra normal (40% e nada na rodada 1)
-            
             let shouldTriggerEvent = false;
 
             if (configChaos) {
@@ -689,10 +830,9 @@
             }
 
             if (shouldTriggerEvent) {
-                const pool = ['DOUBLE', 'TRIPLE', 'THIEF', 'LIMIT', 'CHAOS', 'CAPITALIST'];
+                const pool = ['DOUBLE', 'TRIPLE', 'THIEF', 'LIMIT', 'CHAOS', 'CAPITALIST', 'BLIND'];
                 const activePlayers = players.filter(p => p.active);
                 
-                // UNDERDOG apenas se houver 1 único perdedor
                 const scores = activePlayers.map(p => p.score);
                 const minScore = Math.min(...scores);
                 const countMin = scores.filter(s => s === minScore).length;
@@ -700,7 +840,6 @@
                     pool.push('UNDERDOG');
                 }
 
-                // BET Apenas se ninguém tiver 1 ponto
                 const hasCriticalScore = activePlayers.some(p => p.score <= 1);
                 if (!hasCriticalScore) {
                     pool.push('BET');
@@ -709,7 +848,6 @@
                 currentEvent = pool[Math.floor(Math.random() * pool.length)];
             }
 
-            // Configurar Evento Sorteado
             if (currentEvent) {
                 document.body.setAttribute('data-event', currentEvent);
                 
@@ -738,7 +876,7 @@
         function finishInitRound(keepPlayer) {
             updateEventUI();
 
-            // REPOPULA A LISTA DE ELEMENTOS (Para restaurar os eliminados)
+            // REPOPULA A LISTA DE ELEMENTOS
             const select = document.getElementById('guess-input');
             select.innerHTML = `<option value="" disabled selected>Selecionar elemento...</option>`;
             Object.keys(database).sort().forEach(el => select.innerHTML += `<option value="${el}">${el}</option>`);
@@ -751,7 +889,6 @@
             const informais = [...data.informal];
             const formais = [...data.formal];
             
-            // 5 Informais Garantidas
             for(let i=0; i<5; i++) {
                 if (informais.length > 0) {
                     selected.push(informais.splice(Math.floor(Math.random() * informais.length), 1)[0]);
@@ -786,6 +923,7 @@
 
             modal.classList.remove('hidden');
             inputArea.classList.add('hidden');
+
             icon.innerText = "ℹ️";
             title.innerText = "INFO DO EVENTO";
             desc.innerText = eventDescriptions[currentEvent] || "Evento especial ativo.";
@@ -796,7 +934,7 @@
         }
 
         function openBetModal() {
-            stopTimer(); // Pausa timer se estiver rodando (embora initRound seja antes do timer)
+            stopTimer(); 
             const modal = document.getElementById('generic-modal');
             const title = document.getElementById('modal-title');
             const desc = document.getElementById('modal-desc');
@@ -805,16 +943,15 @@
             const input = document.getElementById('modal-number-input');
             const icon = document.getElementById('modal-icon');
 
-            // UPDATE: Encontrar jogador com menor pontuação
+            modal.classList.remove('hidden');
+            
             const activePlayers = players.filter(p => p.active);
             const minScore = Math.min(...activePlayers.map(p => p.score));
             const minPlayer = activePlayers.find(p => p.score === minScore);
-            const maxBet = minPlayer.score - 1; // Não pode apostar tudo
+            const maxBet = minPlayer.score - 1; 
 
-            modal.classList.remove('hidden');
             icon.innerText = "💰";
             title.innerText = "MODO APOSTA!";
-            // UPDATE: Mensagem personalizada
             desc.innerText = `Atenção ${minPlayer.name} (${minPlayer.score} pts), defina a aposta da rodada! (Máx: ${maxBet})`;
             inputArea.classList.remove('hidden');
             input.value = "1";
@@ -868,7 +1005,8 @@
                 'CHAOS': 'ORDEM ALEATÓRIA 🎲',
                 'BET': 'MODO APOSTA 💰',
                 'UNDERDOG': 'AZARÃO NO COMANDO 🐢',
-                'CAPITALIST': 'LOJA ABERTA 🛒'
+                'CAPITALIST': 'LOJA ABERTA 🛒',
+                'BLIND': 'RODADA CEGA 🙈'
             };
 
             if (currentEvent) {
@@ -882,25 +1020,20 @@
         // --- TIMER LOGIC ---
         function startTimer() {
             if (configTimer <= 0) return;
-            
-            stopTimer(); // Limpa anterior
+            stopTimer(); 
             timeLeft = configTimer;
             updateTimerUI();
 
             const barFill = document.getElementById('timer-bar-fill');
             barFill.style.width = '100%';
-            barFill.style.transition = 'none'; // Reset imediato
-
-            // Força reflow
+            barFill.style.transition = 'none'; 
             void barFill.offsetWidth;
-
             barFill.style.transition = `width ${configTimer}s linear`;
             barFill.style.width = '0%';
 
             timerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timer-text').innerText = `${timeLeft}s`;
-                
                 if (timeLeft <= 0) {
                     stopTimer();
                     handleTimeout();
@@ -911,7 +1044,7 @@
         function stopTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = null;
-            document.getElementById('timer-bar-fill').style.width = '100%'; // Reset visual opcional
+            document.getElementById('timer-bar-fill').style.width = '100%'; 
             document.getElementById('timer-bar-fill').style.transition = 'none';
         }
 
@@ -925,7 +1058,6 @@
             const p = players[currentPlayerIdx];
             p.score -= 3;
             
-            // Modal de Aviso Rápido
             const modal = document.getElementById('generic-modal');
             const title = document.getElementById('modal-title');
             const desc = document.getElementById('modal-desc');
@@ -933,6 +1065,7 @@
             const icon = document.getElementById('modal-icon');
 
             modal.classList.remove('hidden');
+
             icon.innerText = "⌛";
             title.innerText = "TEMPO ESGOTADO!";
             desc.innerText = `${p.name} demorou demais e perdeu 3 pontos!`;
@@ -941,15 +1074,22 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-                checkLoseCondition(p, true); // true = trigger next turn
+                checkLoseCondition(p, true); 
             }, 2000);
         }
 
         function rotatePlayer() {
+            // Check for Blind Mode Reset (Dicas voltam para baixo)
+            if (currentEvent === 'BLIND') {
+                const buttons = document.querySelectorAll('.card-num');
+                buttons.forEach(b => b.classList.remove('revealed'));
+                document.getElementById('clue-display').innerText = "Dicas Ocultas...";
+            }
+
             const activePlayers = players.filter(p => p.active);
             if (activePlayers.length === 0) return;
 
-            stopTimer(); // Para timer do anterior
+            stopTimer();
 
             shopActionUsed = false;
             underdogClicks = 0;
@@ -975,8 +1115,8 @@
             updatePassButton();
             updateShopButtons();
             
-            // Inicia timer para o novo jogador
             startTimer();
+            updateStatus();
         }
 
         function updateStatus() {
@@ -999,7 +1139,7 @@
                     <span class="text-[10px] font-orbitron font-bold tracking-widest truncate max-w-full" style="color: ${textColor}">
                         ${p.name} ${isSkipped ? '(PULADO)' : ''}
                     </span>
-                    <div class="score-pill mt-1 ${p.score <= 2 ? 'text-red-400 border-red-500/50' : ''}" style="${p.score > 2 ? 'color:var(--neon-theme); border-color:var(--neon-theme)' : ''}">${p.score} PTS</div>
+                    <div class="score-pill mt-1 ${p.score <= 2 && currentEvent !== 'BLIND' ? 'text-red-400 border-red-500/50' : ''}" style="${p.score > 2 && currentEvent !== 'BLIND' ? 'color:var(--neon-theme); border-color:var(--neon-theme)' : ''}">${p.score} PTS</div>
                     <div class="passes-pill">PULOS: ${p.passes}</div>
                 `;
                 container.appendChild(div);
@@ -1013,7 +1153,7 @@
 
             for (let i = 1; i <= max; i++) {
                 const b = document.createElement('button');
-                b.className = "card-num h-14 rounded-2xl font-orbitron text-xl flex items-center justify-center text-white";
+                b.className = "card-num h-14 rounded-2xl font-orbitron text-xl flex items-center justify-center text-white cursor-pointer relative";
                 b.innerText = i;
                 b.onclick = () => handleCardClick(b, i-1);
                 grid.appendChild(b);
@@ -1035,15 +1175,17 @@
             const clueText = currentDicas[index];
             document.getElementById('clue-display').innerText = `"${clueText}"`;
             
-            // Adicionar ao histórico
-            const histContainer = document.getElementById('history-container');
-            const histList = document.getElementById('clue-history-list');
-            histContainer.classList.remove('hidden');
-            
-            const pHist = document.createElement('p');
-            pHist.className = "border-b border-white/5 pb-1 last:border-0";
-            pHist.innerHTML = `<strong class="text-[var(--neon-theme)] mr-1">#${index+1}:</strong> ${clueText}`;
-            histList.prepend(pHist); // Adiciona no topo
+            // Adicionar ao histórico (Exceto no modo cego)
+            if (currentEvent !== 'BLIND') {
+                const histContainer = document.getElementById('history-container');
+                const histList = document.getElementById('clue-history-list');
+                histContainer.classList.remove('hidden');
+                
+                const pHist = document.createElement('p');
+                pHist.className = "border-b border-white/5 pb-1 last:border-0";
+                pHist.innerHTML = `<strong class="text-[var(--neon-theme)] mr-1">#${index+1}:</strong> ${clueText}`;
+                histList.prepend(pHist);
+            }
 
             if (isUnderdog) {
                 underdogClicks++;
@@ -1105,6 +1247,7 @@
             const icon = document.getElementById('modal-icon');
 
             modal.classList.remove('hidden');
+
             icon.innerText = "🚫";
             title.innerText = "ANULAR OPONENTE";
             desc.innerText = "Escolha quem perderá a próxima vez:";
@@ -1125,7 +1268,7 @@
 
         function checkGuess() {
             playClick();
-            stopTimer(); // Para o timer ao arriscar
+            stopTimer(); 
 
             const val = document.getElementById('guess-input').value;
             if (!val) return;
@@ -1184,6 +1327,7 @@
             const icon = document.getElementById('modal-icon');
 
             modal.classList.remove('hidden');
+            
             icon.innerText = "🕵️‍♀️";
             
             const targets = players.filter((pl, idx) => idx !== currentPlayerIdx && pl.active);
@@ -1252,6 +1396,8 @@
             const actions = document.getElementById('modal-actions');
             const icon = document.getElementById('modal-icon');
 
+            modal.classList.remove('hidden');
+
             const targets = players.filter(p => p.id !== killer.id && p.active);
 
             // Se não sobrar ninguém, venceu de qualquer jeito
@@ -1259,8 +1405,7 @@
                 showFinalWin(killer);
                 return;
             }
-
-            modal.classList.remove('hidden');
+            
             icon.innerText = "💀";
             title.innerText = "HORA DA CEIFA!";
             desc.innerText = `Parabéns ${killer.name}! Você atingiu 10 pontos. Escolha uma vítima para ELIMINAR permanentemente do jogo.`;
@@ -1306,7 +1451,12 @@
 
         function handlePass() {
             const p = players[currentPlayerIdx];
-            if (p.passes > 0) { p.passes -= 1; nextTurn(); }
+            if (p.passes > 0) { 
+                p.passes -= 1; 
+                nextTurn(); 
+            } else {
+                alert("Sem pulos restantes! Você deve arriscar (ou perder tempo).");
+            }
         }
 
         function updatePassButton() {
@@ -1323,7 +1473,6 @@
             document.getElementById('guess-input').value = "";
             document.getElementById('clue-display').innerText = "Toque em um número...";
             rotatePlayer();
-            updateStatus();
         }
 
         function showFinalWin(winner) {
