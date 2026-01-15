@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BATALHIGA V6 - Updated Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap');
+
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-gold: #ffd700;
+            --neon-red: #ff0055;
+            --neon-green: #00ff66;
+            --neon-purple: #bd00ff;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #05060a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            transition: background 0.5s ease;
+        }
+
+        /* Cores Dinâmicas dos Eventos */
+        body[data-event="DOUBLE"] { --neon-theme: var(--neon-blue); }
+        body[data-event="TRIPLE"] { --neon-theme: var(--neon-gold); }
+        body[data-event="THIEF"] { --neon-theme: var(--neon-red); }
+        body[data-event="LIMIT"] { --neon-theme: #ff8800; }
+        body[data-event="CHAOS"] { --neon-theme: #ff00ff; }
+        body[data-event="BET"] { --neon-theme: #00ff00; }
+        body[data-event="UNDERDOG"] { --neon-theme: #0088ff; }
+        body[data-event="CAPITALIST"] { --neon-theme: #ffffff; }
+        
+        body:not([data-event]) { --neon-theme: var(--neon-blue); }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-8px, 0); }
+            40% { transform: translate(8px, 0); }
+            60% { transform: translate(-8px, 0); }
+            80% { transform: translate(8px, 0); }
+        }
+        .apply-shake { animation: shake 0.4s ease-in-out; }
+
+        .card-num {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card-num.revealed {
+            background: var(--neon-theme);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-theme);
+            border-color: #fff;
+            transform: scale(0.92);
+        }
+
+        .active-player-border {
+            border: 3px solid var(--neon-theme);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 15px var(--neon-theme);
+        }
+
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-pill {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid var(--neon-theme);
+            color: var(--neon-theme);
+        }
+
+        .event-banner {
+            animation: pulse-theme 2s infinite;
+            border-color: var(--neon-theme);
+            color: var(--neon-theme);
+            background: rgba(0,0,0,0.4);
+        }
+        @keyframes pulse-theme {
+            0% { box-shadow: 0 0 5px var(--neon-theme); }
+            50% { box-shadow: 0 0 20px var(--neon-theme); }
+            100% { box-shadow: 0 0 5px var(--neon-theme); }
+        }
+
+        /* FAÍSCAS / PARTICLES BG */
+        .event-sparks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle, var(--neon-theme) 1px, transparent 2px), 
+                radial-gradient(circle, var(--neon-theme) 2px, transparent 3px);
+            background-size: 60px 60px, 90px 90px;
+            background-position: 0 0, 30px 30px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        body[data-event] .event-sparks {
+            opacity: 0.3;
+            animation: floatingSparks 5s linear infinite;
+        }
+        @keyframes floatingSparks {
+            0% { background-position: 0 0, 30px 30px; }
+            100% { background-position: 0 60px, 30px 120px; }
+        }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos da Loja */
+        .shop-btn {
+            background: linear-gradient(to bottom, #2d3748, #1a202c);
+            border: 1px solid #4a5568;
+            transition: all 0.2s;
+        }
+        .shop-btn:active:not(:disabled) { transform: scale(0.95); }
+        .shop-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        /* Estilo da Tabela de Referência */
+        .ref-table-row {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 0;
+        }
+        .ref-table-row:last-child { border-bottom: none; }
+        .ref-title { color: var(--neon-theme); font-weight: bold; font-size: 0.9rem; }
+        .ref-content { color: #cbd5e1; font-size: 0.85rem; }
+
+        /* Scrollbar customizada para histórico */
+        .history-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        .history-scroll::-webkit-scrollbar-thumb {
+            background: var(--neon-theme);
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen p-4 flex flex-col items-center pb-20">
+
+    <!-- Spark Effect Container -->
+    <div class="event-sparks"></div>
+
+    <header class="text-center mt-2 mb-4 w-full">
+        <h1 class="text-5xl font-orbitron font-bold tracking-tighter" style="color: var(--neon-theme); text-shadow: 0 0 15px var(--neon-theme);">
+            BATAL<span class="text-white">HIGA</span>
+        </h1>
+        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V6 - Updated Edition</p>
+    </header>
+
+    <main class="w-full max-w-lg flex flex-col gap-5 relative">
+        
+        <div id="event-display" class="hidden w-full border-2 p-3 rounded-xl text-center font-orbitron font-bold uppercase tracking-widest text-sm event-banner z-10 flex items-center justify-center">
+            ⚠ EVENTO: <span id="event-name" class="text-white ml-2"></span>
+            <button onclick="showEventInfo()" class="ml-3 w-6 h-6 rounded-full border border-white text-white text-xs font-bold bg-white/10 active:scale-95 flex items-center justify-center">i</button>
+        </div>
+
+        <!-- POT DISPLAY FOR BET MODE -->
+        <div id="pot-display" class="hidden w-full bg-green-900/50 border border-green-500 p-2 rounded-lg text-center text-green-400 font-bold mb-[-10px]">
+            💰 POTE ACUMULADO: <span id="pot-amount" class="text-white text-xl ml-1">0</span> PTS
+        </div>
+
+        <!-- UNDERDOG INFO -->
+        <div id="underdog-display" class="hidden w-full bg-blue-900/50 border border-blue-500 p-2 rounded-lg text-center text-blue-300 font-bold text-xs mb-[-10px]">
+            🐢 AZARÃO ATIVO: <span id="underdog-name" class="text-white"></span> tem 2 dicas por turno!
+        </div>
+
+        <!-- START SCREEN -->
+        <div id="start-screen" class="glass-effect p-6 rounded-3xl shadow-2xl">
+            <h2 class="text-2xl font-orbitron font-bold mb-4 text-white text-center uppercase tracking-widest border-b border-slate-700 pb-4">Manual de Jogo</h2>
+            <div class="mb-6 p-4 bg-black/40 rounded-2xl text-slate-300 text-sm leading-relaxed text-justify h-64 overflow-y-auto history-scroll">
+                
+                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Número de jogadores:</p>
+                <p class="mb-4 text-xs">2 a 4.</p>
+
+                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Início do jogo:</p>
+                <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
+                    <li>A ordem inicial dos jogadores é aleatória.</li>
+                    <li>Cada jogador começa com 5 pontos.</li>
+                </ul>
+
+                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Funcionamento por rodada:</p>
+                <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
+                    <li>O jogo seleciona um elemento de liga aleatório.</li>
+                    <li>Em cada rodada, há 20 botões com 20 dicas diferentes.</li>
+                    <li>Na sua vez, escolha uma das 20 dicas.</li>
+                    <li>Após ver a dica, decida se vai arriscar o elemento de liga ou passar a vez.</li>
+                    <li>Um jogador pode passar no máximo 3 vezes durante o jogo.</li>
+                </ul>
+
+                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Ao arriscar:</p>
+                <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
+                    <li><strong>Acertou:</strong> Ganha 1 ponto e inicia uma nova rodada (novo elemento).</li>
+                    <li><strong>Errou:</strong> Perde 1 ponto e passa para o próximo jogador.</li>
+                </ul>
+
+                <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Fim do jogo:</p>
+                <ul class="list-disc pl-4 space-y-1 text-xs">
+                    <li>Um jogador chega a 10 pontos.</li>
+                    <li>OU Todos os outros jogadores chegam a 0 pontos, sobrando apenas 1.</li>
+                </ul>
+            </div>
+
+            <div class="flex flex-col items-center gap-6">
+                <div class="text-center">
+                    <span class="text-xs uppercase font-bold text-slate-500 tracking-widest mb-3 block">Jogadores</span>
+                    <div class="flex gap-4">
+                        <button onclick="setPlayersCount(2)" id="btn-p2" class="p-btn w-14 h-14 rounded-xl bg-cyan-600 text-black font-bold text-xl">2</button>
+                        <button onclick="setPlayersCount(3)" id="btn-p3" class="p-btn w-14 h-14 rounded-xl bg-slate-800 text-white font-bold text-xl">3</button>
+                        <button onclick="setPlayersCount(4)" id="btn-p4" class="p-btn w-14 h-14 rounded-xl bg-slate-800 text-white font-bold text-xl">4</button>
+                    </div>
+                </div>
+                <button onclick="showNamesScreen()" class="w-full bg-white text-black font-orbitron font-bold py-4 rounded-xl shadow-lg active:scale-95 text-lg uppercase">
+                    Configurar
+                </button>
+            </div>
+        </div>
+
+        <!-- NAMES SCREEN -->
+        <div id="names-screen" class="hidden glass-effect p-6 rounded-3xl animate-fade-in">
+            <h2 class="text-xl font-orbitron font-bold mb-6 text-center uppercase tracking-widest">Identificação</h2>
+            <div id="names-container" class="flex flex-col gap-3 mb-6"></div>
+            <button onclick="startGame()" class="w-full bg-cyan-600 text-white font-orbitron font-bold py-4 rounded-xl text-lg uppercase active:scale-95">
+                Iniciar
+            </button>
+        </div>
+
+        <!-- GAME UI -->
+        <div id="players-status" class="hidden grid grid-cols-2 gap-2"></div>
+
+        <div id="game-screen" class="hidden flex flex-col gap-4">
+            
+            <!-- SHOP PANEL (CAPITALIST MODE) -->
+            <div id="shop-panel" class="hidden glass-effect p-3 rounded-2xl border border-white/20">
+                <div class="text-center text-xs font-bold uppercase text-slate-400 mb-2 tracking-widest">🛒 Loja Capitalista (1 compra/turno)</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="shopBuy('skip')" class="shop-btn p-2 rounded text-[10px] text-white flex flex-col items-center">
+                        <span class="font-bold text-red-400">ANULAR OPONENTE</span>
+                        <span class="text-xs">1 Ponto</span>
+                    </button>
+                    <button onclick="shopBuy('clue')" class="shop-btn p-2 rounded text-[10px] text-white flex flex-col items-center">
+                        <span class="font-bold text-yellow-400">+1 DICA EXTRA</span>
+                        <span class="text-xs">1 Ponto</span>
+                    </button>
+                    <button onclick="shopBuy('pass')" class="shop-btn p-2 rounded text-[10px] text-white flex flex-col items-center">
+                        <span class="font-bold text-blue-400">+1 PASSAR VEZ</span>
+                        <span class="text-xs">2 Pontos</span>
+                    </button>
+                    <button onclick="shopBuy('change')" class="shop-btn p-2 rounded text-[10px] text-white flex flex-col items-center">
+                        <span class="font-bold text-purple-400">MUDAR ELEMENTO</span>
+                        <span class="text-xs">2 Pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRID -->
+            <div class="glass-effect p-4 rounded-3xl min-h-[200px] flex items-center justify-center">
+                <div id="grid-pistas" class="grid grid-cols-4 gap-2 w-full"></div>
+            </div>
+
+            <!-- CLUE DISPLAY AREA -->
+            <div class="flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <div id="clue-display" class="flex-grow bg-slate-950 p-4 rounded-2xl border-2 text-center text-lg font-semibold text-white shadow-inner flex items-center justify-center leading-tight transition-colors" style="border-color: var(--neon-theme); min-height: 80px;">
+                        Toque em um número...
+                    </div>
+                    <button onclick="openRefTable()" class="w-16 bg-slate-800 border border-slate-600 rounded-2xl flex flex-col items-center justify-center text-white active:scale-95 shadow-lg">
+                        <span class="text-2xl">📘</span>
+                        <span class="text-[8px] font-bold mt-1 uppercase">Tabela</span>
+                    </button>
+                </div>
+
+                <!-- HISTÓRICO DE DICAS -->
+                <div id="history-container" class="glass-effect p-3 rounded-2xl border border-white/10 hidden">
+                    <div class="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest border-b border-white/10 pb-1">Histórico de Dicas da Rodada</div>
+                    <div id="clue-history-list" class="flex flex-col gap-2 max-h-32 overflow-y-auto history-scroll text-sm text-slate-300">
+                        <!-- Histórico inserido via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div id="action-panel" class="glass-effect p-5 rounded-3xl flex flex-col gap-3">
+                <select id="guess-input" class="w-full bg-slate-950 border border-slate-700 text-white p-3 rounded-xl text-lg outline-none focus:border-cyan-500">
+                    <option value="" disabled selected>Selecionar elemento...</option>
+                </select>
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="checkGuess()" class="w-full text-black font-bold py-4 rounded-xl uppercase text-lg shadow-lg active:scale-[0.98] transition-all" style="background-color: var(--neon-theme);">Arriscar</button>
+                    <button id="btn-pass" onclick="handlePass()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl uppercase text-xs border border-slate-700 active:bg-slate-700">Passar Vez</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFERENCE TABLE MODAL -->
+        <div id="ref-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-md">
+            <div class="bg-slate-900 border-2 border-white p-6 rounded-3xl w-full max-w-lg h-[80vh] flex flex-col animate-fade-in relative">
+                <button onclick="closeRefTable()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">✕</button>
+                
+                <h3 class="text-xl font-orbitron font-bold text-white mb-4 uppercase text-center border-b border-slate-700 pb-4">Tabela de Consulta</h3>
+                
+                <div class="overflow-y-auto history-scroll flex-grow pr-2">
+                    
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da resistência</div>
+                        <div class="ref-content">Carbono (C), Manganês (Mn), Fósforo (P), Silício (Si), Vanádio (V), Tungstênio (W)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da dureza</div>
+                        <div class="ref-content">Carbono (C), Manganês (Mn), Fósforo (P), Silício (Si), Tungstênio (W)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da resistência ao impacto</div>
+                        <div class="ref-content">Níquel (Ni), Cromo (Cr), Cobre (Cu)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Redução da ductilidade</div>
+                        <div class="ref-content">Carbono (C), Fósforo (P), Enxofre (S)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da resistência em altas temperaturas</div>
+                        <div class="ref-content">Cromo (Cr), Molibdênio (Mo), Vanádio (V), Cobalto (Co)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da temperabilidade</div>
+                        <div class="ref-content">Níquel (Ni), Cromo (Cr), Molibdênio (Mo)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Ação desoxidante</div>
+                        <div class="ref-content">Manganês (Mn), Silício (Si), Alumínio (Al)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da resistência à corrosão</div>
+                        <div class="ref-content">Manganês (Mn), Fósforo (P), Cromo (Cr), Molibdênio (Mo), Cobalto (Co), Tungstênio (W)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da resistência à abrasão</div>
+                        <div class="ref-content">Cromo (Cr), Molibdênio (Mo)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Aumento da usinabilidade</div>
+                        <div class="ref-content">Fósforo (P), Enxofre (S), Molibdênio (Mo), Chumbo (Pb)</div>
+                    </div>
+
+                    <div class="ref-table-row">
+                        <div class="ref-title">Redução da soldabilidade</div>
+                        <div class="ref-content">Carbono (C)</div>
+                    </div>
+
+                </div>
+                
+                <button onclick="closeRefTable()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl mt-4 border border-slate-600">FECHAR</button>
+            </div>
+        </div>
+
+        <!-- MODALS GENERICO -->
+        <div id="generic-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-6 backdrop-blur-sm">
+            <div class="bg-slate-900 border-2 border-white p-6 rounded-3xl w-full max-w-sm text-center animate-fade-in">
+                <div id="modal-icon" class="text-5xl mb-4">🔔</div>
+                <h3 id="modal-title" class="text-xl font-orbitron font-bold text-white mb-2 uppercase"></h3>
+                <p id="modal-desc" class="text-slate-300 text-sm mb-6"></p>
+                
+                <!-- Input Area (Hidden by default) -->
+                <div id="modal-input-area" class="hidden mb-4">
+                    <input type="number" id="modal-number-input" class="bg-black border border-slate-600 text-white text-center text-2xl p-2 rounded-lg w-24" placeholder="0">
+                </div>
+
+                <div id="modal-actions" class="flex flex-col gap-2"></div>
+            </div>
+        </div>
+
+        <div id="win-screen" class="hidden glass-effect p-10 rounded-[2rem] border-2 text-center shadow-[0_0_50px_rgba(255,255,255,0.1)]">
+            <div id="win-icon" class="text-8xl mb-6">🏆</div>
+            <h2 id="winner-title" class="text-3xl font-orbitron font-bold text-white mb-4 uppercase"></h2>
+            <p id="win-message" class="text-sm text-slate-300 mb-8"></p>
+            <button onclick="location.reload()" class="w-full bg-white text-black font-orbitron font-bold py-5 rounded-2xl text-xl hover:scale-105">REINICIAR</button>
+        </div>
+    </main>
+
+    <script>
+        // --- BANCO DE DADOS COMPLETO (V3 + ESTRUTURA) ---
+        const database = {
+            "Carbono": { "formal": ["Este elemento é o principal responsável por transformar ferro em aço", "Pequenas quantidades já alteram drasticamente a dureza", "Aumenta significativamente a resistência mecânica", "Contribui fortemente para o aumento da dureza", "Reduz a ductilidade do material", "Em excesso, torna o aço mais frágil", "Afeta diretamente a soldabilidade de forma negativa", "Está presente em praticamente todos os aços", "Seu controle é essencial em tratamentos térmicos", "Atua como elemento endurecedor básico", "Influencia a resistência ao desgaste", "Não aumenta a resistência à abrasão", "É decisivo para a formação de martensita", "Quanto maior seu teor, mais difícil é a usinagem", "Não melhora a resistência à corrosão", "Não atua como desoxidante principal", "É o elemento de liga mais fundamental", "Está associado à perda de tenacidade em altos teores", "Afeta o equilíbrio entre dureza e ductilidade", "É o primeiro elemento considerado no projeto de um aço", "Geralmente piora o desempenho em altas temperaturas", "Está ligado ao aumento da resistência ao impacto apenas em baixos teores", "Controla o limite de escoamento", "Influencia diretamente a microestrutura", "Seu excesso pode causar trincas", "É essencial, mas perigoso se mal dosado", "Interfere negativamente na soldagem", "Atua em quase todas as propriedades mecânicas", "É o elemento mais simples e mais importante", "Sem ele, não existe aço"], "informal": ["Define se o aço vira arame ou uma faca de corte.","É o 'combustível' da têmpera.","Inimigo número 1 do soldador.","Dá a 'alma' ao metal.","Responsável por aquele fio de navalha duradouro.","Em níveis baixos, é fácil de amassar com a mão.","Faz o metal 'gritar' se resfriar rápido demais.","O elemento mais barato para ganhar força.","Muito abundante na natureza.","O mestre da dureza básica."] },
+            "Manganês": { "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Não melhora a temperabilidade", "Atua como desoxidante no aço líquido", "Ajuda a neutralizar os efeitos do enxofre", "Não melhora a resistência ao desgaste", "Não contribui para a resistência à abrasão", "Não aumenta a resistência ao impacto", "Não reduz drasticamente a soldabilidade", "É comum em aços estruturais", "Melhora a qualidade metalúrgica do aço", "Auxilia na remoção de impurezas", "Atua em conjunto com o carbono", "Aumenta a resistência sem fragilizar tanto", "Ajuda no controle da microestrutura", "Melhora a resistência à corrosão", "Atua fortemente em tratamentos térmicos", "Reduz defeitos causados pelo enxofre", "Melhora a homogeneidade do aço", "É um elemento de liga de baixo custo", "Muito usado em aços comerciais", "Contribui para a resistência em aplicações mecânicas", "Não atua em altas temperaturas", "Não é um elemento nobre", "Tem papel importante na desoxidação", "Aumenta a resistência geral do aço", "Atua na formação de soluções sólidas", "Melhora propriedades sem comprometer muito a ductilidade", "É comum em quase todos os aços carbono", "Atua mais como reforço estrutural do que químico"], "informal": ["O faxineiro do aço líquido.","Segredo dos trilhos de trem pesados.","Fica mais resistente graças a sua ação desoxidante.","Impede que o enxofre destrua a liga.","O braço direito do Carbono.","Brasil é um dos maiores produtores.","Evita que o aço vire 'biscoito' ao forjar.","Limpa o oxigênio na fabricação.","O elemento do equilíbrio industrial.","Essencial para pontes e prédios."] },
+            "Fósforo": { "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Reduz significativamente a ductilidade", "Prejudica a tenacidade", "Torna o aço mais frágil", "Não melhora a resistência ao impacto", "Pequenas quantidades já causam efeitos negativos", "É considerado um elemento indesejável em muitos aços", "Pode melhorar levemente a usinabilidade", "Não prejudica a soldabilidade", "Melhora a resistência à corrosão", "Atua negativamente em aplicações estruturais", "Aumenta a fragilidade a frio", "Seu controle é rigoroso na siderurgia", "Não melhora a resistência ao desgaste", "Pode aumentar a resistência, mas com custo mecânico", "Não atua como desoxidante", "Afeta negativamente tratamentos térmicos", "Pode causar trincas", "É tolerado apenas em pequenas quantidades", "Está associado a falhas frágeis", "Reduz a ductilidade", "Não melhora propriedades em altas temperaturas", "Não melhora a temperabilidade", "É mais prejudicial do que benéfico", "É difícil de remover do aço", "Aumenta o risco de fratura", "Atua negativamente na integridade estrutural", "É evitado em aços de qualidade", "É um elemento de controle crítico"], "informal": ["O sal do aço: um pouquinho ajuda, muito estraga.","Faz o metal quebrar como vidro no frio.","Um 'mal necessário' em algumas receitas.","Dá brilho, mas tira a segurança.","O pesadelo dos engenheiros estruturais.","Muito comum em fertilizantes também.","Aumenta a dureza de forma barata e perigosa.","O perigo silencioso da metalurgia.","Difícil de expulsar da liga.","Pode causar trincas fantasmas."] },
+            "Enxofre": { "formal": ["Reduz a ductilidade do aço", "Prejudica a resistência mecânica", "Aumenta a fragilidade", "Melhora a usinabilidade", "Forma inclusões indesejáveis", "Não melhora a resistência ao impacto", "Não prejudica a soldabilidade", "É considerado uma impureza", "Atua negativamente na tenacidade", "Pode causar trincas a quente", "Não melhora a resistência à corrosão", "Reduz a qualidade estrutural", "É controlado rigorosamente", "Atua negativamente em aplicações críticas", "Pode ser neutralizado pelo manganês", "Não melhora a dureza", "Não melhora a temperabilidade", "Aumenta a fragilidade intergranular", "É tolerado apenas em aços de fácil usinagem", "Prejudica o desempenho mecânico geral", "Não atua como desoxidante", "Forma sulfetos frágeis", "Afeta negativamente tratamentos térmicos", "Reduz a resistência ao impacto", "Aumenta a probabilidade de falhas", "Não melhora resistência ao desgaste", "Atua como elemento indesejável", "Seu excesso compromete o aço", "Está associado a defeitos metalúrgicos", "É evitado em aços estruturais"], "informal": ["Tem cheiro de ovo podre na forma pura.","O queridinho de quem faz parafusos rápidos.","Faz o metal 'desfarelar' na usinagem.","Inimigo mortal da solda perfeita.","Causa trincas durante a forja (quente).","O lubrificante barato das ferramentas.","Se não tiver Manganês por perto, ele mata o aço.","Vem muitas vezes do carvão e minérios.","Pequenas 'manchas' na estrutura interna.","O vilão da integridade mecânica."] },
+            "Silício": { "formal": ["Atua como desoxidante", "Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Melhora a resistência à corrosão", "Aumenta a resistência à oxidação", "Não reduz drasticamente a ductilidade", "Melhora propriedades elásticas", "Atua na limpeza do aço", "É comum em aços estruturais", "Ajuda na qualidade metalúrgica", "Melhora a resistência em ambientes agressivos", "Atua positivamente na microestrutura", "Não melhora a usinabilidade", "Não prejudica fortemente a soldabilidade", "Aumenta a resistência geral", "Atua como elemento auxiliar", "Melhora a resistência ao envelhecimento", "É usado em aços elétricos", "Não melhora resistência ao impacto", "Contribui para estabilidade estrutural", "Não aumenta a resistência em altas temperaturas", "Não melhora a temperabilidade", "Atua na redução de impurezas", "Melhora propriedades físicas", "Atua sem causar fragilidade excessiva", "É um elemento de liga comum", "Atua em baixos teores", "Melhora a resistência à oxidação superficial", "Não é um elemento nobre", "Atua mais quimicamente do que mecanicamente"], "informal": ["O mestre das molas.","Essencial para transformadores elétricos.","Vem basicamente da areia.","Faz o metal líquido correr como água.","O cérebro da eletrônica moderna.","Tira as bolhas do metal derretido.","Garante que a faca dobre e não quebre.","Protege o metal do oxigênio.","O elemento do flexibilidade.","Dá resistência sem ser pesado."] },
+            "Níquel": { "formal": ["Aumenta significativamente a resistência ao impacto", "Melhora a tenacidade do aço", "Mantém boa ductilidade mesmo com alta resistência", "Não contribui para a resistência mecânica", "Atua positivamente em baixas temperaturas", "Não melhora a resistência à corrosão", "É comum em aços inoxidáveis", "Não aumenta excessivamente a dureza", "Ajuda a evitar fraturas frágeis", "Atua na estabilidade da microestrutura", "Melhora a resistência à fadiga", "Não prejudica severamente a soldabilidade", "Contribui para aplicações estruturais críticas", "É usado quando se busca equilíbrio mecânico", "Atua melhor combinado com cromo", "Não melhora a usinabilidade", "Aumenta a resistência sem fragilizar", "Melhora o comportamento em impacto", "É comum em aços de alta tenacidade", "Não atua como desoxidante", "Atua em aplicações criogênicas", "Melhora propriedades mecânicas gerais", "Não melhora resistência à abrasão", "Contribui para estabilidade dimensional", "Atua mais mecanicamente do que quimicamente", "Não melhora a temperabilidade de forma dominante", "É um elemento relativamente caro", "Associado a aços de alto desempenho", "Melhora a vida útil do material", "Está ligado à resistência e tenacidade"], "informal": ["O metal das moedas.","Aguenta o frio do Alasca sem trincar.","Dá um brilho amarelado luxuoso.","Elemento 'nobre' e caro.","Usado em cordas de guitarra.","O segredo dos motores de avião.","Traz a confiança para peças que vibram muito.","Faz o aço inox ser tenaz e dócil.","Amigo da pancada pesada.","Não gosta de ser magnético."] },
+            "Cromo": { "formal": ["Aumenta significativamente a resistência à corrosão", "Contribui para o aumento da dureza", "Melhora a resistência ao desgaste", "Aumenta a resistência à abrasão", "Atua fortemente em altas temperaturas", "Melhora a temperabilidade", "Forma carbonetos duros", "É essencial em aços inoxidáveis", "Não aumenta a resistência mecânica", "Contribui para maior vida útil", "Melhora o desempenho em ambientes agressivos", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a resistência à oxidação", "Contribui para estabilidade microestrutural", "Atua tanto mecanicamente quanto quimicamente", "Não atua como desoxidante principal", "É usado em ferramentas e moldes", "Aumenta a resistência ao calor", "Melhora resistência ao desgaste superficial", "Não dificulta a soldabilidade", "É comum em aços especiais", "Atua em aplicações de alta exigência", "Melhora resistência química", "Aumenta a dureza sem depender só do carbono", "Contribui para resistência estrutural", "Atua em conjunto com níquel", "Está associado à proteção contra corrosão", "É um dos elementos mais importantes de liga"], "informal": ["Cria uma 'pele' invisível anti-ferrugem.","Famoso em torneiras e para-choques brilhantes.","O rei do Aço Inox.","Aguenta o fogo sem descascar.","Deixa a faca difícil de amolar, mas eterna.","Protege contra o limão e a maresia.","O elemento do design e da higiene.","Dá o status 'premium' ao metal.","Superfície muito dura.","Inimigo do desgaste."] },
+            "Molibdênio": { "formal": ["Aumenta a resistência em altas temperaturas", "Melhora significativamente a temperabilidade", "Não contribui para a resistência mecânica", "Aumenta a resistência à fluência", "Melhora a resistência à corrosão", "Atua fortemente em aços de alta performance", "Evita fragilização em serviço", "Melhora o desempenho sob carga contínua", "Atua em conjunto com cromo", "Aumenta a resistência ao desgaste", "Melhora a usinabilidade", "Não reduz a ductilidade", "Contribui para estabilidade térmica", "Melhora resistência à fadiga", "Atua em aplicações críticas", "Não atua como desoxidante", "Aumenta a vida útil do material", "É usado em aços de alta temperatura", "Contribui para resistência química", "Melhora a resistência estrutural", "Atua em ambientes severos", "Não aumenta a resistência mecânica sem depender do carbono", "É um elemento de liga nobre", "Melhora comportamento em serviço prolongado", "Atua contra a fragilização por revenido", "Aumenta a confiabilidade do aço", "É comum em aços ligados especiais", "Atua fortemente em tratamentos térmicos", "Contribui para desempenho extremo", "Está ligado a resistência térmica e mecânica"], "informal": ["O mestre do calor extremo.","Favorito para chassis de carros de corrida (Chromoly).","Segura as pontas quando o metal fica vermelho.","Usado em brocas que furam metal grosso.","Peças de petróleo no fundo do mar.","O reforço invisível das ligas de elite.","Elemento muito denso e pesado.","Evita que o aço amoleça no trabalho duro.","Aliado das altas pressões.","O braço forte da engenharia moderna."] },
+            "Vanádio": { "formal": ["Aumenta significativamente a resistência mecânica", "Não contribui para o aumento da dureza", "Forma carbonetos muito duros", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Atua na refinação do grão", "Melhora a resistência estrutural", "Contribui para maior limite de escoamento", "Atua fortemente em aços ferramenta", "Melhora a estabilidade microestrutural", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a vida útil do material", "Contribui para resistência à fadiga", "Atua em aplicações de alta exigência", "Não atua como desoxidante principal", "Não aumenta a resistência ao desgaste superficial", "Melhora propriedades mecânicas gerais", "Atua em conjunto com cromo", "Contribui para resistência em altas temperaturas", "É comum em aços microligados", "Melhora desempenho sob carga", "Atua como reforço estrutural", "Não melhora resistência à corrosão", "Contribui para microestrutura mais fina", "Atua fortemente na resistência em altas temperaturas", "É usado em pequenas quantidades", "Melhora confiabilidade do aço", "Está ligado à alta resistência"], "informal": ["Símbolo gravado nas melhores chaves de boca.","Dá ao aço um corte 'agressivo'.","Refina os grãos internos como um microscópio.","O metal do torque infinito.","Permite fazer ferramentas finas e indestrutíveis.","Nome inspirado em uma deusa nórdica.","Inimigo da fadiga mecânica.","Traz a 'confiança' ao mecânico profissional.","O toque final das ligas especiais.","Dá longevidade extrema ao fio."] },
+            "Alumínio": { "formal": ["Atua como desoxidante", "Melhora a limpeza do aço", "Contribui para refino de grão", "Aumenta a resistência à oxidação", "Melhora estabilidade metalúrgica", "Atua em pequenas quantidades", "Não aumenta significativamente a dureza", "Não melhora resistência mecânica diretamente", "Melhora propriedades químicas", "Atua no controle de inclusões", "Melhora a qualidade estrutural", "Não melhora a usinabilidade", "Não prejudica fortemente a ductilidade", "Atua na estabilidade microestrutural", "É usado como elemento auxiliar", "Não melhora resistência ao desgaste", "Atua em aços calmados", "Melhora resistência superficial à oxidação", "Não melhora resistência ao impacto", "Atua no controle metalúrgico", "É essencial na produção de aço limpo", "Atua quimicamente mais do que mecanicamente", "Não melhora temperabilidade", "É comum em processos siderúrgicos", "Não melhora resistência à corrosão geral", "Atua na prevenção de defeitos", "Contribui para qualidade do material", "Não atua em altas temperaturas", "É um elemento leve e reativo", "Atua nos bastidores da resistência"], "informal": ["Famoso por latinhas e aviões.","O metal mais leve da lista.","Tira o oxigênio 'na marra' da fabricação.","Reciclável infinitas vezes.","Aparece em quase tudo, da cozinha ao foguete.","Reflete o calor como um espelho.","O elemento mais abundante na crosta da Terra.","Acalma o banho de metal fervente.","Protegeção branca e fosca.","O guardião da pureza do aço."] },
+            "Cobalto": { "formal": ["Aumenta a resistência em altas temperaturas", "Melhora a resistência ao calor", "Atua em aços de alta performance", "Contribui para estabilidade térmica", "Melhora propriedades mecânicas em serviço quente", "Melhora a resistência à corrosão", "Não atua como desoxidante", "É usado em aços especiais", "Melhora desempenho em ferramentas", "Atua em aplicações extremas", "Aumenta a dureza a quente", "Contribui para resistência estrutural", "Não melhora usinabilidade", "Não reduz a ductilidade", "Atua em conjunto com tungstênio", "Melhora resistência ao revenido", "Contribui para desempenho térmico", "É relativamente raro", "Aumenta confiabilidade em altas temperaturas", "Atua mais termicamente do que mecanicamente", "Não melhora resistência ao impacto", "Atua em aços rápidos", "Contribui para estabilidade dimensional", "Não melhora soldabilidade", "Atua em aplicações industriais severas", "Aumenta a vida útil em calor", "Não melhora resistência à abrasão", "É um elemento de liga caro", "Atua em ferramentas de corte", "Está ligado a desempenho em altas temperaturas"], "informal": ["Dá uma cor azul profunda maravilhosa.","A 'cola' que segura o tungstênio nas brocas.","Essencial para ímãs superpoderosos.","Usado em turbinas de aviões a jato.","Aguenta o atrito que derreteria outros metais.","Elemento de mineração perigosa e rara.","Não deixa o aço 'relaxar' no calor.","Superligas espaciais amam ele.","O metal do desempenho extremo.","Íntimo dos cortes cirúrgicos industriais."] },
+            "Chumbo": { "formal": ["Melhora significativamente a usinabilidade", "Facilita o corte e a remoção de cavaco", "Não melhora resistência mecânica", "Não aumenta a dureza", "Não reduz a soldabilidade", "Prejudica propriedades mecânicas", "Atua negativamente na resistência estrutural", "É usado apenas em aplicações específicas", "Não melhora resistência ao impacto", "Atua como lubrificante interno", "Não reduz a ductilidade", "Não melhora resistência à corrosão", "Atua apenas em pequenas quantidades", "É tóxico", "Não atua em tratamentos térmicos", "Melhora produtividade de usinagem", "Prejudica a tenacidade", "Não melhora resistência ao desgaste", "É usado em aços de fácil usinagem", "Não atua como desoxidante", "Pode causar problemas metalúrgicos", "Reduz qualidade estrutural", "Atua apenas para fabricação", "Não melhora resistência em altas temperaturas", "É evitado em aços estruturais", "Atua mais no processo do que no produto final", "Não melhora propriedades mecânicas", "Facilita fabricação em série", "É um elemento controverso", "Está ligado exclusivamente à usinabilidade"], "informal": ["O metal mais macio e pesado.","Protege você no dentista (Raio-X).","O pesadelo ecológico se mal usado.","Faz a broca deslizar como se fosse manteiga.","Derrete até no fogão de casa.","Não deixa o sino tocar (abafa o som).","O rei da produtividade barata.","Muito denso, pouco resistente.","Pesa na balança, mas não na dureza.","O 'mordomo' do torneiro mecânico."] },
+            "Cobre": { "formal": ["Não melhora a resistência à corrosão", "Atua contra impactos", "Contribui para durabilidade do aço", "Não aumenta significativamente a dureza", "Não melhora resistência ao desgaste", "Atua em pequenas quantidades", "Não reduz a ductilidade", "Não melhora resistência em ambientes externos", "Não melhora a temperabilidade", "Não atua como desoxidante", "Pode causar fragilização a quente", "É usado em aços patináveis", "Aumenta a vida útil estrutural", "Atua quimicamente", "Melhora a resistência ao impacto", "Contribui para estabilidade química", "Não melhora usinabilidade", "Não atua contra oxidação superficial", "Não melhora resistência em altas temperaturas", "Atua em conjunto com níquel", "Não melhora resistência ambiental", "Não melhora soldabilidade", "É comum em aços expostos", "Atua sem grandes mudanças mecânicas", "Contribui para resistência ao impacto", "Não aumenta resistência mecânica geral", "Atua na durabilidade", "Não forma carbonetos duros", "Atua mais quimicamente que estruturalmente", "Está ligado à resistência ao impacto"], "informal": ["Rei dos fios elétricos.","Cria aquela ferrugem 'bonita' mas não protetora.","Cor avermelhada clássica.","Mata bactérias por contato.","O primeiro metal que a humanidade dominou.","Faz o aço aguentar impactos por décadas.","O metal das moedas antigas e estátuas.","Excelente para espalhar o calor.","Ingrediente secreto do bronze e latão.","Protege o metal do impacto."] },
+            "Tungstênio": { "formal": ["Aumenta significativamente a dureza", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Não atua fortemente em altas temperaturas", "Mantém dureza a quente", "É essencial em aços rápidos", "Forma carbonetos extremamente duros", "Aumenta a resistência mecânica", "Contribui para ferramentas de corte", "Melhora resistência ao revenido", "Não melhora usinabilidade", "Reduz a ductilidade", "Atua em aplicações extremas", "Melhora estabilidade térmica", "Contribui para longa vida útil", "Não atua como desoxidante", "Aumenta resistência estrutural", "Atua em conjunto com cobalto", "Não melhora desempenho sob calor intenso", "Melhora a resistência à corrosão", "Atua em aços ferramenta", "Contribui para dureza profunda", "Atua fortemente em tratamentos térmicos", "É um elemento pesado", "Aumenta custo do aço", "Atua onde a dureza é extrema", "Não melhora resistência ao desgaste severo", "Mantém propriedades em serviço pesado", "Está ligado a aplicações industriais críticas", "É símbolo de dureza e resistência"], "informal": ["O metal mais difícil de derreter do universo.","Ponta das brocas que furam parede (Vídia).","Filamento de lâmpadas que brilham forte.","Pesado quase como o ouro.","O rei do corte industrial (Aço Rápido).","Alianças que nunca riscam.","O segurança que não sai do lugar no calor.","'Come' o esmeril se você tentar lixar.","Conhecido como Wolfram.","Sinônimo de dureza extrema."] }
+        };
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playClick() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        let numPlayers = 2;
+        let players = [];
+        let currentPlayerIdx = 0;
+        let currentElement = "";
+        let currentDicas = [];
+        let playerActionTaken = false;
+        let currentEvent = null;
+        let isFirstRound = true; // Nova flag
+        
+        // Estado dos Novos Eventos
+        let betPot = 0;
+        let underdogId = null;
+        let underdogClicks = 0;
+        let shopActionUsed = false;
+        let skipNextPlayerId = null; 
+
+        // Descrições dos eventos para o botão info
+        const eventDescriptions = {
+            'DOUBLE': 'PONTOS DOBRADOS (x2): Se acertar, ganha 2 pontos!',
+            'TRIPLE': 'PONTOS TRIPLICADOS (x3): Se acertar, ganha 3 pontos!',
+            'THIEF': 'RODADA DO LADRÃO: Acertou? Rouba 1 ponto. Errou? Dá 1 ponto.',
+            'LIMIT': 'LIMITE DE DICAS: Apenas 5 dicas disponíveis nesta rodada.',
+            'CHAOS': 'ORDEM ALEATÓRIA: A vez não segue a ordem normal dos jogadores.',
+            'BET': 'MODO APOSTA: O vencedor leva o pote acumulado!',
+            'UNDERDOG': 'AZARÃO NO COMANDO: O último colocado joga com 2 dicas por turno.',
+            'CAPITALIST': 'LOJA ABERTA: Compre poderes especiais com seus pontos.'
+        };
+
+        // Referência e Histórico
+        function openRefTable() {
+            playClick();
+            document.getElementById('ref-modal').classList.remove('hidden');
+        }
+        function closeRefTable() {
+            playClick();
+            document.getElementById('ref-modal').classList.add('hidden');
+        }
+
+        function setPlayersCount(num) {
+            playClick();
+            numPlayers = num;
+            document.querySelectorAll('.p-btn').forEach(b => {
+                b.classList.replace('bg-cyan-600', 'bg-slate-800');
+                b.classList.replace('text-black', 'text-white');
+            });
+            document.getElementById(`btn-p${num}`).classList.replace('bg-slate-800', 'bg-cyan-600');
+            document.getElementById(`btn-p${num}`).classList.replace('text-white', 'text-black');
+        }
+
+        function showNamesScreen() {
+            playClick();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('names-screen').classList.remove('hidden');
+            const container = document.getElementById('names-container');
+            container.innerHTML = "";
+            for(let i=1; i<=numPlayers; i++) {
+                container.innerHTML += `
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 ml-1">Jogador ${i}</label>
+                        <input type="text" id="name-p${i}" placeholder="Nome" class="bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none focus:border-cyan-500 text-white font-bold">
+                    </div>`;
+            }
+        }
+
+        function startGame() {
+            playClick();
+            players = [];
+            isFirstRound = true; // Reseta na partida nova
+            for(let i=1; i<=numPlayers; i++) {
+                let name = document.getElementById(`name-p${i}`).value.trim().toUpperCase() || `P${i}`;
+                players.push({ id: i, name: name, score: 5, active: true, passes: 3 });
+            }
+            document.getElementById('names-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('players-status').classList.remove('hidden');
+            
+            initRound();
+        }
+
+        function initRound(keepPlayer = false) {
+            // Reset States
+            currentEvent = null;
+            betPot = 0;
+            underdogId = null;
+            underdogClicks = 0;
+            shopActionUsed = false;
+            skipNextPlayerId = null;
+            
+            // Limpa histórico visual
+            document.getElementById('clue-history-list').innerHTML = "";
+            document.getElementById('history-container').classList.add('hidden');
+
+            document.getElementById('pot-display').classList.add('hidden');
+            document.getElementById('underdog-display').classList.add('hidden');
+            document.getElementById('shop-panel').classList.add('hidden');
+            document.body.removeAttribute('data-event');
+
+            // --- LÓGICA DE EVENTOS (40% de chance) ---
+            // UPDATE: NUNCA ter evento na primeira rodada
+            if (isFirstRound) {
+                isFirstRound = false;
+                currentEvent = null;
+            } else if (Math.random() < 0.40) {
+                const pool = ['DOUBLE', 'TRIPLE', 'THIEF', 'LIMIT', 'CHAOS', 'CAPITALIST'];
+                const activePlayers = players.filter(p => p.active);
+                
+                // UPDATE: UNDERDOG apenas se houver 1 único perdedor
+                const scores = activePlayers.map(p => p.score);
+                const minScore = Math.min(...scores);
+                const countMin = scores.filter(s => s === minScore).length;
+                if (countMin === 1) {
+                    pool.push('UNDERDOG');
+                }
+
+                // UPDATE: BET Apenas se ninguém tiver 1 ponto
+                const hasCriticalScore = activePlayers.some(p => p.score <= 1);
+                if (!hasCriticalScore) {
+                    pool.push('BET');
+                }
+
+                currentEvent = pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            // Configurar Evento Sorteado
+            if (currentEvent) {
+                document.body.setAttribute('data-event', currentEvent);
+                
+                if (currentEvent === 'BET') {
+                    openBetModal();
+                    return; 
+                }
+
+                if (currentEvent === 'UNDERDOG') {
+                    const activePlayers = players.filter(p => p.active);
+                    const minScore = Math.min(...activePlayers.map(p => p.score));
+                    const udPlayer = activePlayers.find(p => p.score === minScore);
+                    underdogId = udPlayer.id;
+                    document.getElementById('underdog-display').classList.remove('hidden');
+                    document.getElementById('underdog-name').innerText = udPlayer.name;
+                }
+
+                if (currentEvent === 'CAPITALIST') {
+                    document.getElementById('shop-panel').classList.remove('hidden');
+                }
+            }
+            
+            finishInitRound(keepPlayer);
+        }
+
+        function finishInitRound(keepPlayer) {
+            updateEventUI();
+
+            // REPOPULA A LISTA DE ELEMENTOS (Para restaurar os eliminados)
+            const select = document.getElementById('guess-input');
+            select.innerHTML = `<option value="" disabled selected>Selecionar elemento...</option>`;
+            Object.keys(database).sort().forEach(el => select.innerHTML += `<option value="${el}">${el}</option>`);
+
+            const elNames = Object.keys(database);
+            currentElement = elNames[Math.floor(Math.random() * elNames.length)];
+            
+            const data = database[currentElement];
+            const selected = [];
+            const informais = [...data.informal];
+            const formais = [...data.formal];
+            
+            // 5 Informais Garantidas
+            for(let i=0; i<5; i++) {
+                if (informais.length > 0) {
+                    selected.push(informais.splice(Math.floor(Math.random() * informais.length), 1)[0]);
+                }
+            }
+            
+            const rest = [...informais, ...formais];
+            const maxDicas = (currentEvent === 'LIMIT') ? 5 : 20;
+
+            while(selected.length < maxDicas && rest.length > 0) {
+                selected.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+            }
+
+            currentDicas = selected.sort(() => Math.random() - 0.5);
+            playerActionTaken = false;
+            
+            if (!keepPlayer) rotatePlayer();
+
+            document.getElementById('clue-display').innerText = "Toque em um número...";
+            updateStatus();
+            renderGrid();
+        }
+
+        function showEventInfo() {
+            if (!currentEvent) return;
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+            const inputArea = document.getElementById('modal-input-area');
+
+            modal.classList.remove('hidden');
+            inputArea.classList.add('hidden');
+            icon.innerText = "ℹ️";
+            title.innerText = "INFO DO EVENTO";
+            desc.innerText = eventDescriptions[currentEvent] || "Evento especial ativo.";
+            
+            actions.innerHTML = `
+                <button onclick="document.getElementById('generic-modal').classList.add('hidden')" class="w-full bg-slate-700 text-white font-bold py-3 rounded-xl">ENTENDI</button>
+            `;
+        }
+
+        function openBetModal() {
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const inputArea = document.getElementById('modal-input-area');
+            const input = document.getElementById('modal-number-input');
+            const icon = document.getElementById('modal-icon');
+
+            // UPDATE: Encontrar jogador com menor pontuação
+            const activePlayers = players.filter(p => p.active);
+            const minScore = Math.min(...activePlayers.map(p => p.score));
+            const minPlayer = activePlayers.find(p => p.score === minScore);
+            const maxBet = minPlayer.score - 1; // Não pode apostar tudo
+
+            modal.classList.remove('hidden');
+            icon.innerText = "💰";
+            title.innerText = "MODO APOSTA!";
+            // UPDATE: Mensagem personalizada
+            desc.innerText = `Atenção ${minPlayer.name} (${minPlayer.score} pts), defina a aposta da rodada! (Máx: ${maxBet})`;
+            inputArea.classList.remove('hidden');
+            input.value = "1";
+            input.max = maxBet;
+            
+            actions.innerHTML = `
+                <button onclick="confirmBet(${maxBet})" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">CONFIRMAR APOSTA</button>
+            `;
+        }
+
+        function confirmBet(maxBet) {
+            const input = document.getElementById('modal-number-input');
+            let amount = parseInt(input.value) || 0;
+            
+            // UPDATE: Validação de aposta
+            if (amount <= 0) {
+                alert("A aposta deve ser de pelo menos 1 ponto!");
+                return;
+            }
+            if (amount > maxBet) {
+                alert(`Você não pode apostar mais do que ${maxBet} pontos!`);
+                return;
+            }
+
+            let totalPot = 0;
+            players.forEach(p => {
+                if(p.active) {
+                    p.score -= amount;
+                    totalPot += amount;
+                }
+            });
+
+            betPot = totalPot;
+            document.getElementById('pot-display').classList.remove('hidden');
+            document.getElementById('pot-amount').innerText = betPot;
+            document.getElementById('generic-modal').classList.add('hidden');
+            document.getElementById('modal-input-area').classList.add('hidden');
+
+            finishInitRound(false);
+        }
+
+        function updateEventUI() {
+            const body = document.body;
+            const banner = document.getElementById('event-display');
+            const eventNameEl = document.getElementById('event-name');
+            
+            const eventNames = {
+                'DOUBLE': 'PONTOS DOBRADOS (x2)',
+                'TRIPLE': 'PONTOS TRIPLICADOS (x3)',
+                'THIEF': 'RODADA DO LADRÃO 🕵️‍♀️',
+                'LIMIT': 'LIMITE DE DICAS (5 APENAS)',
+                'CHAOS': 'ORDEM ALEATÓRIA 🎲',
+                'BET': 'MODO APOSTA 💰',
+                'UNDERDOG': 'AZARÃO NO COMANDO 🐢',
+                'CAPITALIST': 'LOJA ABERTA 🛒'
+            };
+
+            if (currentEvent) {
+                banner.classList.remove('hidden');
+                eventNameEl.innerText = eventNames[currentEvent];
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function rotatePlayer() {
+            const activePlayers = players.filter(p => p.active);
+            if (activePlayers.length === 0) return;
+
+            shopActionUsed = false;
+            underdogClicks = 0;
+
+            if (currentEvent === 'CHAOS') {
+                let available = activePlayers.filter(p => p.id !== players[currentPlayerIdx]?.id);
+                if (available.length === 0) available = activePlayers; 
+                
+                const nextPlayer = available[Math.floor(Math.random() * available.length)];
+                currentPlayerIdx = players.indexOf(nextPlayer);
+            } else {
+                do {
+                    currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+                } while (!players[currentPlayerIdx].active);
+            }
+
+            if (players[currentPlayerIdx].id === skipNextPlayerId) {
+                skipNextPlayerId = null; 
+                rotatePlayer(); 
+            }
+
+            updatePassButton();
+            updateShopButtons();
+        }
+
+        function updateStatus() {
+            const container = document.getElementById('players-status');
+            container.innerHTML = "";
+            players.forEach((p, i) => {
+                const isActive = (i === currentPlayerIdx);
+                const isSkipped = (p.id === skipNextPlayerId);
+                
+                const div = document.createElement('div');
+                let borderClass = 'border-slate-800/50 bg-slate-900/30';
+                if (isActive) borderClass = 'active-player-border scale-105';
+                if (isSkipped) borderClass = 'border-red-500 bg-red-900/20 opacity-70';
+
+                const textColor = isActive ? 'var(--neon-theme)' : '#64748b';
+                
+                div.className = `p-3 rounded-2xl border-2 flex flex-col items-center transition-all ${borderClass} ${!p.active ? 'opacity-20 grayscale' : ''}`;
+                
+                div.innerHTML = `
+                    <span class="text-[10px] font-orbitron font-bold tracking-widest truncate max-w-full" style="color: ${textColor}">
+                        ${p.name} ${isSkipped ? '(PULADO)' : ''}
+                    </span>
+                    <div class="score-pill mt-1 ${p.score <= 2 ? 'text-red-400 border-red-500/50' : ''}" style="${p.score > 2 ? 'color:var(--neon-theme); border-color:var(--neon-theme)' : ''}">${p.score} PTS</div>
+                    <div class="passes-pill">PULOS: ${p.passes}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid-pistas');
+            grid.innerHTML = "";
+            const max = currentDicas.length; 
+
+            for (let i = 1; i <= max; i++) {
+                const b = document.createElement('button');
+                b.className = "card-num h-14 rounded-2xl font-orbitron text-xl flex items-center justify-center text-white";
+                b.innerText = i;
+                b.onclick = () => handleCardClick(b, i-1);
+                grid.appendChild(b);
+            }
+        }
+
+        function handleCardClick(btn, index) {
+            if (btn.classList.contains('revealed')) return;
+
+            const p = players[currentPlayerIdx];
+            const isUnderdog = (currentEvent === 'UNDERDOG' && p.id === underdogId);
+            
+            if (playerActionTaken && !isUnderdog) return;
+            if (isUnderdog && underdogClicks >= 2) return;
+            
+            playClick();
+            
+            btn.classList.add('revealed');
+            const clueText = currentDicas[index];
+            document.getElementById('clue-display').innerText = `"${clueText}"`;
+            
+            // Adicionar ao histórico
+            const histContainer = document.getElementById('history-container');
+            const histList = document.getElementById('clue-history-list');
+            histContainer.classList.remove('hidden');
+            
+            const pHist = document.createElement('p');
+            pHist.className = "border-b border-white/5 pb-1 last:border-0";
+            pHist.innerHTML = `<strong class="text-[var(--neon-theme)] mr-1">#${index+1}:</strong> ${clueText}`;
+            histList.prepend(pHist); // Adiciona no topo
+
+            if (isUnderdog) {
+                underdogClicks++;
+                if(underdogClicks >= 2) playerActionTaken = true;
+            } else {
+                playerActionTaken = true;
+            }
+        }
+
+        function updateShopButtons() {
+            const p = players[currentPlayerIdx];
+            const btns = document.querySelectorAll('.shop-btn');
+            btns.forEach(b => {
+                b.disabled = shopActionUsed || p.score < 1; 
+            });
+        }
+
+        function shopBuy(item) {
+            const p = players[currentPlayerIdx];
+            if (shopActionUsed) return;
+
+            let cost = 0;
+            if (item === 'skip' || item === 'clue') cost = 1;
+            else cost = 2;
+
+            if (p.score < cost) {
+                alert("Pontos insuficientes!");
+                return;
+            }
+
+            p.score -= cost;
+            shopActionUsed = true;
+            updateStatus();
+            updateShopButtons();
+
+            if (item === 'pass') {
+                p.passes += 1;
+                updateStatus();
+            } else if (item === 'change') {
+                initRound(true); 
+            } else if (item === 'clue') {
+                const unrevealed = Array.from(document.querySelectorAll('.card-num:not(.revealed)'));
+                if (unrevealed.length > 0) {
+                    const randomCard = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+                    randomCard.click();
+                    playerActionTaken = false; 
+                    if(currentEvent === 'UNDERDOG' && p.id === underdogId) underdogClicks = 0;
+                }
+            } else if (item === 'skip') {
+                openSkipModal();
+            }
+        }
+
+        function openSkipModal() {
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+
+            modal.classList.remove('hidden');
+            icon.innerText = "🚫";
+            title.innerText = "ANULAR OPONENTE";
+            desc.innerText = "Escolha quem perderá a próxima vez:";
+            actions.innerHTML = "";
+
+            players.forEach(target => {
+                if (target.id !== players[currentPlayerIdx].id && target.active) {
+                    actions.innerHTML += `<button onclick="confirmSkip(${target.id})" class="w-full bg-slate-700 p-3 rounded-lg text-white font-bold">${target.name}</button>`;
+                }
+            });
+        }
+
+        function confirmSkip(targetId) {
+            skipNextPlayerId = targetId;
+            document.getElementById('generic-modal').classList.add('hidden');
+            updateStatus();
+        }
+
+        function checkGuess() {
+            playClick();
+            const val = document.getElementById('guess-input').value;
+            if (!val) return;
+            const p = players[currentPlayerIdx];
+            const isCorrect = (val === currentElement);
+
+            if (currentEvent === 'THIEF') {
+                if (isCorrect) showThiefModal('STEAL');
+                else {
+                    shakeScreen();
+                    showThiefModal('GIVE');
+                }
+                return;
+            }
+
+            if (currentEvent === 'BET') {
+                if (isCorrect) {
+                    p.score += betPot;
+                    betPot = 0;
+                    checkWinCondition(p);
+                } else {
+                    shakeScreen();
+                    nextTurn();
+                }
+                return;
+            }
+
+            let pointsGain = (currentEvent === 'DOUBLE') ? 2 : (currentEvent === 'TRIPLE') ? 3 : 1;
+            
+            if (isCorrect) {
+                p.score += pointsGain;
+                checkWinCondition(p);
+            } else {
+                shakeScreen();
+                p.score -= 1;
+
+                // UPDATE: Eliminar a opção errada do select
+                const select = document.getElementById('guess-input');
+                const wrongOption = select.querySelector(`option[value="${val}"]`);
+                if (wrongOption) wrongOption.remove();
+
+                checkLoseCondition(p, true);
+            }
+        }
+
+        function shakeScreen() {
+            document.body.classList.add('apply-shake');
+            setTimeout(() => document.body.classList.remove('apply-shake'), 400);
+        }
+
+        function showThiefModal(mode) {
+            const modal = document.getElementById('generic-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const actions = document.getElementById('modal-actions');
+            const icon = document.getElementById('modal-icon');
+
+            modal.classList.remove('hidden');
+            icon.innerText = "🕵️‍♀️";
+            
+            const targets = players.filter((pl, idx) => idx !== currentPlayerIdx && pl.active);
+            actions.innerHTML = "";
+
+            if (mode === 'STEAL') {
+                title.innerText = "ROUBAR PONTO!";
+                desc.innerText = "Acertou! Escolha a vítima:";
+                if (targets.length === 0) {
+                    desc.innerText = "Ninguém para roubar! Ganha 1 ponto normal.";
+                    setTimeout(() => { modal.classList.add('hidden'); players[currentPlayerIdx].score += 1; checkWinCondition(players[currentPlayerIdx]); }, 2000);
+                    return;
+                }
+            } else {
+                title.innerText = "PAGAR PRENDA!";
+                desc.innerText = "Errou! Doe seu ponto para:";
+                if (targets.length === 0) {
+                    desc.innerText = "Ninguém para doar! Perde 1 ponto normal.";
+                    setTimeout(() => { modal.classList.add('hidden'); players[currentPlayerIdx].score -= 1; checkLoseCondition(players[currentPlayerIdx], true); }, 2000);
+                    return;
+                }
+            }
+
+            targets.forEach(target => {
+                actions.innerHTML += `<button onclick="handleThiefAction('${mode}', ${target.id})" class="w-full bg-yellow-600 text-white font-bold py-3 rounded-lg">${target.name} (${target.score})</button>`;
+            });
+        }
+
+        function handleThiefAction(mode, targetId) {
+            const modal = document.getElementById('generic-modal');
+            modal.classList.add('hidden');
+            const p = players[currentPlayerIdx];
+            const target = players.find(pl => pl.id === targetId);
+            
+            if (mode === 'STEAL') {
+                target.score -= 1;
+                p.score += 1;
+                if (target.score <= 0) target.active = false;
+                checkWinCondition(p);
+            } else {
+                p.score -= 1;
+                target.score += 1;
+                checkLoseCondition(p, true);
+            }
+            updateStatus();
+        }
+
+        function checkWinCondition(p) {
+            if(p.score >= 10) showFinalWin(p);
+            else initRound(false);
+        }
+
+        function checkLoseCondition(p, triggerNext) {
+            if (p.score <= 0) {
+                p.active = false;
+                const survivors = players.filter(pl => pl.active);
+                if(survivors.length === 1) { showFinalWin(survivors[0]); return; }
+                if(survivors.length === 0) { showFinalWin(null); return; }
+            }
+            if (triggerNext) nextTurn();
+        }
+
+        function handlePass() {
+            const p = players[currentPlayerIdx];
+            if (p.passes > 0) { p.passes -= 1; nextTurn(); }
+        }
+
+        function updatePassButton() {
+            const btn = document.getElementById('btn-pass');
+            const p = players[currentPlayerIdx];
+            if (p.passes <= 0) { btn.disabled = true; btn.innerText = "SEM PULOS"; }
+            else { btn.disabled = false; btn.innerText = "PASSAR VEZ"; }
+        }
+
+        function nextTurn() {
+            playClick();
+            playerActionTaken = false;
+            document.getElementById('guess-input').value = "";
+            document.getElementById('clue-display').innerText = "Toque em um número...";
+            rotatePlayer();
+            updateStatus();
+        }
+
+        function showFinalWin(winner) {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('players-status').classList.add('hidden');
+            document.getElementById('event-display').classList.add('hidden');
+            document.getElementById('shop-panel').classList.add('hidden');
+            document.getElementById('pot-display').classList.add('hidden');
+            document.getElementById('ref-modal').classList.add('hidden');
+            
+            const screen = document.getElementById('win-screen');
+            screen.classList.remove('hidden');
+            if (winner) {
+                document.getElementById('winner-title').innerText = `${winner.name} VENCEU!`;
+                document.getElementById('win-message').innerText = `O mestre da liga conquistou ${winner.score} pontos. O último elemento era ${currentElement}.`;
+            } else {
+                document.getElementById('winner-title').innerText = `EMPATE TÉCNICO`;
+                document.getElementById('win-message').innerText = `Todos foram eliminados.`;
+            }
+        }
+        
+        window.onload = () => { currentPlayerIdx = -1; };
+    </script>
+</body>
+</html>
