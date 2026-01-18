@@ -979,43 +979,59 @@
             
             const data = database[currentElement];
             
-            // --- NOVA LÓGICA ESTRITA (UPDATE DE REQUISITO) ---
-            // Regra: 1ª Dica é sempre PRIME.
-            // Exceção: Tungstênio, Vanádio, Cromo -> 2 Primeiras são PRIME.
+            // --- NOVA LÓGICA DE PROBABILIDADE + LIMPEZA ---
             
+            // 1. Criar e limpar os Pools
             let primePool = [...data.prime];
-            // Mistura os primes
+            let normalPool = [...data.formal, ...data.informal];
+
+            // REMOVE DICAS DUPLICADAS: Se uma dica normal for igual a qualquer prime, remove da normal.
+            normalPool = normalPool.filter(clue => !primePool.includes(clue));
+
+            // Embaralha para aleatoriedade
             primePool.sort(() => Math.random() - 0.5);
+            normalPool.sort(() => Math.random() - 0.5);
 
-            // Define quantos primes obrigatórios no início
-            let numPrimes = 1; // Padrão
-            const hardElements = ["Tungstênio", "Vanádio", "Cromo"];
-            if (hardElements.includes(currentElement)) {
-                numPrimes = 2; // Força 2 para os difíceis
-            }
-
-            // Seleciona os primes obrigatórios para o início
-            let selectedPrime = primePool.slice(0, numPrimes);
-
-            // Prepara o resto (Formal + Informal + Primes que sobraram)
-            // Incluir os primes que sobraram no resto garante que o jogo não fique muito difícil
-            let restPool = [...data.formal, ...data.informal];
-            let unusedPrimes = primePool.slice(numPrimes);
-            restPool = [...restPool, ...unusedPrimes];
-
-            // Filtra duplicatas (apenas segurança, pois as listas deveriam ser distintas)
-            restPool = restPool.filter(clue => !selectedPrime.includes(clue));
-
-            // Embaralha o resto
-            restPool.sort(() => Math.random() - 0.5);
-
-            // Preenche o total necessário
             let totalNeeded = (currentEvent === 'LIMIT') ? 5 : 20;
-            let fillNeeded = totalNeeded - selectedPrime.length;
-            let selectedRest = restPool.slice(0, fillNeeded);
+            currentDicas = [];
+            let primesPicked = 0;
 
-            // Monta array final: [Prime(s) Obrigatórios, ...RestoEmbaralhado]
-            currentDicas = [...selectedPrime, ...selectedRest];
+            const hardElements = ["Tungstênio", "Vanádio", "Cromo"];
+            const isHardElement = hardElements.includes(currentElement);
+
+            for (let i = 0; i < totalNeeded; i++) {
+                let probability = 0;
+
+                if (i === 0) {
+                    probability = 1.0; // 100% para a PRIMEIRA dica (Obrigatória)
+                } else if (isHardElement && i === 1) {
+                    // EXCEÇÃO OCULTA: Elementos difíceis têm a segunda dica como 100% Prime
+                    probability = 1.0; 
+                } else {
+                    // Lógica de Probabilidade Progressiva
+                    if (primesPicked === 1) probability = 0.7;      // Procurando a 2ª Prime (70%)
+                    else if (primesPicked === 2) probability = 0.5; // Procurando a 3ª Prime (50%)
+                    else probability = 0.3;                         // Procurando a 4ª+ Prime (30% estagnado)
+                }
+
+                // Tenta selecionar Prime baseado na probabilidade
+                let usePrime = Math.random() < probability;
+
+                // Fallback se faltar dicas no pool escolhido
+                if (usePrime && primePool.length === 0) usePrime = false;
+                if (!usePrime && normalPool.length === 0) usePrime = true;
+                
+                // Segurança final (caso não tenha mais nenhuma dica, para o loop)
+                if (usePrime && primePool.length === 0) break; 
+                if (!usePrime && normalPool.length === 0) break;
+
+                if (usePrime) {
+                    currentDicas.push(primePool.pop());
+                    primesPicked++;
+                } else {
+                    currentDicas.push(normalPool.pop());
+                }
+            }
 
             playerActionTaken = false;
             
