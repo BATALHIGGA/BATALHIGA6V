@@ -221,7 +221,7 @@
         <h1 class="text-5xl font-orbitron font-bold tracking-tighter" style="color: var(--neon-theme); text-shadow: 0 0 15px var(--neon-theme);">
             BATAL<span class="text-white">HIGA</span>
         </h1>
-        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V-FINAL</p>
+        <p class="text-slate-500 uppercase tracking-[0.3em] text-[10px] mt-1 font-bold">V-FINAL + UPDATES</p>
     </header>
 
     <main class="w-full max-w-lg flex flex-col gap-5 relative">
@@ -238,7 +238,7 @@
 
         <!-- UNDERDOG INFO -->
         <div id="underdog-display" class="hidden w-full bg-blue-900/50 border border-blue-500 p-2 rounded-lg text-center text-blue-300 font-bold text-xs mb-[-10px]">
-            🐢 AZARÃO ATIVO: <span id="underdog-name" class="text-white"></span> tem 2 dicas por turno!
+            🐢 AZARÃO ATIVO: <span id="underdog-name" class="text-white"></span> tem <span id="ud-bonus-desc">dicas extras</span>!
         </div>
 
         <!-- START SCREEN -->
@@ -252,8 +252,8 @@
                 <p class="mb-3 text-white font-bold border-b border-slate-700 pb-1">Funcionamento por rodada:</p>
                 <ul class="list-disc pl-4 space-y-1 text-xs mb-4">
                     <li>O jogo seleciona um elemento de liga aleatório.</li>
-                    <li>Em cada rodada, há 20 botões com 20 dicas diferentes.</li>
-                    <li>Na sua vez, escolha uma das 20 dicas.</li>
+                    <li>Em cada rodada, há 20 botões com 20 dicas.</li>
+                    <li>Na sua vez, escolha uma das dicas disponíveis.</li>
                     <li>Após ver a dica, decida se vai arriscar o elemento de liga ou passar a vez.</li>
                     <li>Um jogador pode passar no máximo 3 vezes durante o jogo.</li>
                 </ul>
@@ -312,6 +312,18 @@
                         <option value="45">45s</option>
                         <option value="60">60s</option>
                     </select>
+                </div>
+
+                <!-- MODO FÁCIL (MOVIDO PARA CÁ) -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase">👶 Modo Fácil</span>
+                        <button onclick="showOptionInfo('easy')" class="w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-white flex items-center justify-center">?</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-easy" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
                 </div>
 
                 <!-- RANDOM ORDER -->
@@ -548,22 +560,78 @@
     </main>
 
     <script>
-        // --- BANCO DE DADOS COMPLETO ---
+        // --- BANCO DE DADOS ATUALIZADO (Com Categoria 'PRIME' - Dicas Positivas e Obrigatórias no Início) ---
         const database = {
-            "Carbono": { "formal": ["Este elemento é o principal responsável por transformar ferro em aço", "Pequenas quantidades já alteram drasticamente a dureza", "Aumenta significativamente a resistência mecânica", "Contribui fortemente para o aumento da dureza", "Reduz a ductilidade do material", "Em excesso, torna o aço mais frágil", "Afeta diretamente a soldabilidade de forma negativa", "Está presente em praticamente todos os aços", "Seu controle é essencial em tratamentos térmicos", "Atua como elemento endurecedor básico", "Influencia a resistência ao desgaste", "Não aumenta a resistência à abrasão", "É decisivo para a formação de martensita", "Quanto maior seu teor, mais difícil é a usinagem", "Não melhora a resistência à corrosão", "Não atua como desoxidante principal", "É o elemento de liga mais fundamental", "Está associado à perda de tenacidade em altos teores", "Afeta o equilíbrio entre dureza e ductilidade", "É o primeiro elemento considerado no projeto de um aço", "Geralmente piora o desempenho em altas temperaturas", "Está ligado ao aumento da resistência ao impacto apenas em baixos teores", "Controla o limite de escoamento", "Influencia diretamente a microestrutura", "Seu excesso pode causar trincas", "É essencial, mas perigoso se mal dosado", "Interfere negativamente na soldagem", "Atua em quase todas as propriedades mecânicas", "É o elemento mais simples e mais importante", "Sem ele, não existe aço"], "informal": ["Define se o aço vira arame ou uma faca de corte.","É o 'combustível' da têmpera.","Inimigo número 1 do soldador.","Dá a 'alma' ao metal.","Responsável por aquele fio de navalha duradouro.","Em níveis baixos, é fácil de amassar com a mão.","Faz o metal 'gritar' se resfriar rápido demais.","O elemento mais barato para ganhar força.","Muito abundante na natureza.","O mestre da dureza básica."] },
-            "Manganês": { "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Não melhora a temperabilidade", "Atua como desoxidante no aço líquido", "Ajuda a neutralizar os efeitos do enxofre", "Não melhora a resistência ao desgaste", "Não contribui para a resistência à abrasão", "Não aumenta a resistência ao impacto", "Não reduz drasticamente a soldabilidade", "É comum em aços estruturais", "Melhora a qualidade metalúrgica do aço", "Auxilia na remoção de impurezas", "Atua em conjunto com o carbono", "Aumenta a resistência sem fragilizar tanto", "Ajuda no controle da microestrutura", "Melhora a resistência à corrosão", "Atua fortemente em tratamentos térmicos", "Reduz defeitos causados pelo enxofre", "Melhora a homogeneidade do aço", "É um elemento de liga de baixo custo", "Muito usado em aços comerciais", "Contribui para a resistência em aplicações mecânicas", "Não atua em altas temperaturas", "Não é um elemento nobre", "Tem papel importante na desoxidação", "Aumenta a resistência geral do aço", "Atua na formação de soluções sólidas", "Melhora propriedades sem comprometer muito a ductilidade", "É comum em quase todos os aços carbono", "Atua mais como reforço estrutural do que químico"], "informal": ["O faxineiro do aço líquido.","Segredo dos trilhos de trem pesados.","Fica mais resistente graças a sua ação desoxidante.","Impede que o enxofre destrua a liga.","O braço direito do Carbono.","Brasil é um dos maiores produtores.","Evita que o aço vire 'biscoito' ao forjar.","Limpa o oxigênio na fabricação.","O elemento do equilíbrio industrial.","Essencial para pontes e prédios."] },
-            "Fósforo": { "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Reduz significativamente a ductilidade", "Prejudica a tenacidade", "Torna o aço mais frágil", "Não melhora a resistência ao impacto", "Pequenas quantidades já causam efeitos negativos", "É considerado um elemento indesejável em muitos aços", "Pode melhorar levemente a usinabilidade", "Não prejudica a soldabilidade", "Melhora a resistência à corrosão", "Atua negativamente em aplicações estruturais", "Aumenta a fragilidade a frio", "Seu controle é rigoroso na siderurgia", "Não melhora a resistência ao desgaste", "Pode aumentar a resistência, mas com custo mecânico", "Não atua como desoxidante", "Afeta negativamente tratamentos térmicos", "Pode causar trincas", "É tolerado apenas em pequenas quantidades", "Está associado a falhas frágeis", "Reduz a ductilidade", "Não melhora propriedades em altas temperaturas", "Não melhora a temperabilidade", "É mais prejudicial do que benéfico", "É difícil de remover do aço", "Aumenta o risco de fratura", "Atua negativamente na integridade estrutural", "É evitado em aços de qualidade", "É um elemento de controle crítico"], "informal": ["O sal do aço: um pouquinho ajuda, muito estraga.","Faz o metal quebrar como vidro no frio.","Um 'mal necessário' em algumas receitas.","Dá brilho, mas tira a segurança.","O pesadelo dos engenheiros estruturais.","Muito comum em fertilizantes também.","Aumenta a dureza de forma barata e perigosa.","O perigo silencioso da metalurgia.","Difícil de expulsar da liga.","Pode causar trincas fantasmas."] },
-            "Enxofre": { "formal": ["Reduz a ductilidade do aço", "Prejudica a resistência mecânica", "Aumenta a fragilidade", "Melhora a usinabilidade", "Forma inclusões indesejáveis", "Não melhora a resistência ao impacto", "Não prejudica a soldabilidade", "É considerado uma impureza", "Atua negativamente na tenacidade", "Pode causar trincas a quente", "Não melhora a resistência à corrosão", "Reduz a qualidade estrutural", "É controlado rigorosamente", "Atua negativamente em aplicações críticas", "Pode ser neutralizado pelo manganês", "Não melhora a dureza", "Não melhora a temperabilidade", "Aumenta a fragilidade intergranular", "É tolerado apenas em aços de fácil usinagem", "Prejudica o desempenho mecânico geral", "Não atua como desoxidante", "Forma sulfetos frágeis", "Afeta negativamente tratamentos térmicos", "Reduz a resistência ao impacto", "Aumenta a probabilidade de falhas", "Não melhora resistência ao desgaste", "Atua como elemento indesejável", "Seu excesso compromete o aço", "Está associado a defeitos metalúrgicos", "É evitado em aços estruturais"], "informal": ["Tem cheiro de ovo podre na forma pura.","O queridinho de quem faz parafusos rápidos.","Faz o metal 'desfarelar' na usinagem.","Inimigo mortal da solda perfeita.","Causa trincas durante a forja (quente).","O lubrificante barato das ferramentas.","Se não tiver Manganês por perto, ele mata o aço.","Vem muitas vezes do carvão e minérios.","Pequenas 'manchas' na estrutura interna.","O vilão da integridade mecânica."] },
-            "Silício": { "formal": ["Atua como desoxidante", "Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Melhora a resistência à corrosão", "Aumenta a resistência à oxidação", "Não reduz drasticamente a ductilidade", "Melhora propriedades elásticas", "Atua na limpeza do aço", "É comum em aços estruturais", "Ajuda na qualidade metalúrgica", "Melhora a resistência em ambientes agressivos", "Atua positivamente na microestrutura", "Não melhora a usinabilidade", "Não prejudica fortemente a soldabilidade", "Aumenta a resistência geral", "Atua como elemento auxiliar", "Melhora a resistência ao envelhecimento", "É usado em aços elétricos", "Não melhora resistência ao impacto", "Contribui para estabilidade estrutural", "Não aumenta a resistência em altas temperaturas", "Não melhora a temperabilidade", "Atua na redução de impurezas", "Melhora propriedades físicas", "Atua sem causar fragilidade excessiva", "É um elemento de liga comum", "Atua em baixos teores", "Melhora a resistência à oxidação superficial", "Não é um elemento nobre", "Atua mais quimicamente do que mecanicamente"], "informal": ["O mestre das molas.","Essencial para transformadores elétricos.","Vem basicamente da areia.","Faz o metal líquido correr como água.","O cérebro da eletrônica moderna.","Tira as bolhas do metal derretido.","Garante que a faca dobre e não quebre.","Protege o metal do oxigênio.","O elemento do flexibilidade.","Dá resistência sem ser pesado."] },
-            "Níquel": { "formal": ["Aumenta significativamente a resistência ao impacto", "Melhora a tenacidade do aço", "Mantém boa ductilidade mesmo com alta resistência", "Não contribui para a resistência mecânica", "Atua positivamente em baixas temperaturas", "Não melhora a resistência à corrosão", "É comum em aços inoxidáveis", "Não aumenta excessivamente a dureza", "Ajuda a evitar fraturas frágeis", "Atua na estabilidade da microestrutura", "Melhora a resistência à fadiga", "Não prejudica severamente a soldabilidade", "Contribui para aplicações estruturais críticas", "É usado quando se busca equilíbrio mecânico", "Atua melhor combinado com cromo", "Não melhora a usinabilidade", "Aumenta a resistência sem fragilizar", "Melhora o comportamento em impacto", "É comum em aços de alta tenacidade", "Não atua como desoxidante", "Atua em aplicações criogênicas", "Melhora propriedades mecânicas gerais", "Não melhora resistência à abrasão", "Contribui para estabilidade dimensional", "Atua mais mecanicamente do que quimicamente", "Não melhora a temperabilidade de forma dominante", "É um elemento relativamente caro", "Associado a aços de alto desempenho", "Melhora a vida útil do material", "Está ligado à resistência e tenacidade"], "informal": ["O metal das moedas.","Aguenta o frio do Alasca sem trincar.","Dá um brilho amarelado luxuoso.","Elemento 'nobre' e caro.","Usado em cordas de guitarra.","O segredo dos motores de avião.","Traz a confiança para peças que vibram muito.","Faz o aço inox ser tenaz e dócil.","Amigo da pancada pesada.","Não gosta de ser magnético."] },
-            "Cromo": { "formal": ["Aumenta significativamente a resistência à corrosão", "Contribui para o aumento da dureza", "Melhora a resistência ao desgaste", "Aumenta a resistência à abrasão", "Atua fortemente em altas temperaturas", "Melhora a temperabilidade", "Forma carbonetos duros", "É essencial em aços inoxidáveis", "Não aumenta a resistência mecânica", "Contribui para maior vida útil", "Melhora o desempenho em ambientes agressivos", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a resistência à oxidação", "Contribui para estabilidade microestrutural", "Atua tanto mecanicamente quanto quimicamente", "Não atua como desoxidante principal", "É usado em ferramentas e moldes", "Aumenta a resistência ao calor", "Melhora resistência ao desgaste superficial", "Não dificulta a soldabilidade", "É comum em aços especiais", "Atua em aplicações de alta exigência", "Melhora resistência química", "Aumenta a dureza sem depender só do carbono", "Contribui para resistência estrutural", "Atua em conjunto com níquel", "Está associado à proteção contra corrosão", "É um dos elementos mais importantes de liga"], "informal": ["Cria uma 'pele' invisível anti-ferrugem.","Famoso em torneiras e para-choques brilhantes.","O rei do Aço Inox.","Aguenta o fogo sem descascar.","Deixa a faca difícil de amolar, mas eterna.","Protege contra o limão e a maresia.","O elemento do design e da higiene.","Dá o status 'premium' ao metal.","Superfície muito dura.","Inimigo do desgaste."] },
-            "Molibdênio": { "formal": ["Aumenta a resistência em altas temperaturas", "Melhora significativamente a temperabilidade", "Não contribui para a resistência mecânica", "Aumenta a resistência à fluência", "Melhora a resistência à corrosão", "Atua fortemente em aços de alta performance", "Evita fragilização em serviço", "Melhora o desempenho sob carga contínua", "Atua em conjunto com cromo", "Aumenta a resistência ao desgaste", "Melhora a usinabilidade", "Não reduz a ductilidade", "Contribui para estabilidade térmica", "Melhora resistência à fadiga", "Atua em aplicações críticas", "Não atua como desoxidante", "Aumenta a vida útil do material", "É usado em aços de alta temperatura", "Contribui para resistência química", "Melhora a resistência estrutural", "Atua em ambientes severos", "Não aumenta a resistência mecânica sem depender do carbono", "É um elemento de liga nobre", "Melhora comportamento em serviço prolongado", "Atua contra a fragilização por revenido", "Aumenta a confiabilidade do aço", "É comum em aços ligados especiais", "Atua fortemente em tratamentos térmicos", "Contribui para desempenho extremo", "Está ligado a resistência térmica e mecânica"], "informal": ["O mestre do calor extremo.","Favorito para chassis de carros de corrida (Chromoly).","Segura as pontas quando o metal fica vermelho.","Usado em brocas que furam metal grosso.","Peças de petróleo no fundo do mar.","O reforço invisível das ligas de elite.","Elemento muito denso e pesado.","Evita que o aço amoleça no trabalho duro.","Aliado das altas pressões.","O braço forte da engenharia moderna."] },
-            "Vanádio": { "formal": ["Aumenta significativamente a resistência mecânica", "Não contribui para o aumento da dureza", "Forma carbonetos muito duros", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Atua na refinação do grão", "Melhora a resistência estrutural", "Contribui para maior limite de escoamento", "Atua fortemente em aços ferramenta", "Melhora a estabilidade microestrutural", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a vida útil do material", "Contribui para resistência à fadiga", "Atua em aplicações de alta exigência", "Não atua como desoxidante principal", "Não aumenta a resistência ao desgaste superficial", "Melhora propriedades mecânicas gerais", "Atua em conjunto com cromo", "Contribui para resistência em altas temperaturas", "É comum em aços microligados", "Melhora desempenho sob carga", "Atua como reforço estrutural", "Não melhora resistência à corrosão", "Contribui para microestrutura mais fina", "Atua fortemente na resistência em altas temperaturas", "É usado em pequenas quantidades", "Melhora confiabilidade do aço", "Está ligado à alta resistência"], "informal": ["Símbolo gravado nas melhores chaves de boca.","Dá ao aço um corte 'agressivo'.","Refina os grãos internos como um microscópio.","O metal do torque infinito.","Permite fazer ferramentas finas e indestrutíveis.","Nome inspirado em uma deusa nórdica.","Inimigo da fadiga mecânica.","Traz a 'confiança' ao mecânico profissional.","O toque final das ligas especiais.","Dá longevidade extrema ao fio."] },
-            "Alumínio": { "formal": ["Atua como desoxidante", "Melhora a limpeza do aço", "Contribui para refino de grão", "Aumenta a resistência à oxidação", "Melhora estabilidade metalúrgica", "Atua em pequenas quantidades", "Não aumenta significativamente a dureza", "Não melhora resistência mecânica diretamente", "Melhora propriedades químicas", "Atua no controle de inclusões", "Melhora a qualidade estrutural", "Não melhora a usinabilidade", "Não prejudica fortemente a ductilidade", "Atua na estabilidade microestrutural", "É usado como elemento auxiliar", "Não melhora resistência ao desgaste", "Atua em aços calmados", "Melhora resistência superficial à oxidação", "Não melhora resistência ao impacto", "Atua no controle metalúrgico", "É essencial na produção de aço limpo", "Atua quimicamente mais do que mecanicamente", "Não melhora temperabilidade", "É comum em processos siderúrgicos", "Não melhora resistência à corrosão geral", "Atua na prevenção de defeitos", "Contribui para qualidade do material", "Não atua em altas temperaturas", "É um elemento leve e reativo", "Atua nos bastidores da resistência"], "informal": ["Famoso por latinhas e aviões.","O metal mais leve da lista.","Tira o oxigênio 'na marra' da fabricação.","Reciclável infinitas vezes.","Aparece em quase tudo, da cozinha ao foguete.","Reflete o calor como um espelho.","O elemento mais abundante na crosta da Terra.","Acalma o banho de metal fervente.","Protegeção branca e fosca.","O guardião da pureza do aço."] },
-            "Cobalto": { "formal": ["Aumenta a resistência em altas temperaturas", "Melhora a resistência ao calor", "Atua em aços de alta performance", "Contribui para estabilidade térmica", "Melhora propriedades mecânicas em serviço quente", "Melhora a resistência à corrosão", "Não atua como desoxidante", "É usado em aços especiais", "Melhora desempenho em ferramentas", "Atua em aplicações extremas", "Aumenta a dureza a quente", "Contribui para resistência estrutural", "Não melhora usinabilidade", "Não reduz a ductilidade", "Atua em conjunto com tungstênio", "Melhora resistência ao revenido", "Contribui para desempenho térmico", "É relativamente raro", "Aumenta confiabilidade em altas temperaturas", "Atua mais termicamente do que mecanicamente", "Não melhora resistência ao impacto", "Atua em aços rápidos", "Contribui para estabilidade dimensional", "Não melhora soldabilidade", "Atua em aplicações industriais severas", "Aumenta a vida útil em calor", "Não melhora resistência à abrasão", "É um elemento de liga caro", "Atua em ferramentas de corte", "Está ligado a desempenho em altas temperaturas"], "informal": ["Dá uma cor azul profunda maravilhosa.","A 'cola' que segura o tungstênio nas brocas.","Essencial para ímãs superpoderosos.","Usado em turbinas de aviões a jato.","Aguenta o atrito que derreteria outros metais.","Elemento de mineração perigosa e rara.","Não deixa o aço 'relaxar' no calor.","Superligas espaciais amam ele.","O metal do desempenho extremo.","Íntimo dos cortes cirúrgicos industriais."] },
-            "Chumbo": { "formal": ["Melhora significativamente a usinabilidade", "Facilita o corte e a remoção de cavaco", "Não melhora resistência mecânica", "Não aumenta a dureza", "Não reduz a soldabilidade", "Prejudica propriedades mecânicas", "Atua negativamente na resistência estrutural", "É usado apenas em aplicações específicas", "Não melhora resistência ao impacto", "Atua como lubrificante interno", "Não reduz a ductilidade", "Não melhora resistência à corrosão", "Atua apenas em pequenas quantidades", "É tóxico", "Não atua em tratamentos térmicos", "Melhora produtividade de usinagem", "Prejudica a tenacidade", "Não melhora resistência ao desgaste", "É usado em aços de fácil usinagem", "Não atua como desoxidante", "Pode causar problemas metalúrgicos", "Reduz qualidade estrutural", "Atua apenas para fabricação", "Não melhora resistência em altas temperaturas", "É evitado em aços estruturais", "Atua mais no processo do que no produto final", "Não melhora propriedades mecânicas", "Facilita fabricação em série", "É um elemento controverso", "Está ligado exclusivamente à usinabilidade"], "informal": ["O metal mais macio e pesado.","Protege você no dentista (Raio-X).","O pesadelo ecológico se mal usado.","Faz a broca deslizar como se fosse manteiga.","Derrete até no fogão de casa.","Não deixa o sino tocar (abafa o som).","O rei da produtividade barata.","Muito denso, pouco resistente.","Pesa na balança, mas não na dureza.","O 'mordomo' do torneiro mecânico."] },
-            "Cobre": { "formal": ["Não melhora a resistência à corrosão", "Atua contra impactos", "Contribui para durabilidade do aço", "Não aumenta significativamente a dureza", "Não melhora resistência ao desgaste", "Atua em pequenas quantidades", "Não reduz a ductilidade", "Não melhora resistência em ambientes externos", "Não melhora a temperabilidade", "Não atua como desoxidante", "Pode causar fragilização a quente", "É usado em aços patináveis", "Aumenta a vida útil estrutural", "Atua quimicamente", "Melhora a resistência ao impacto", "Contribui para estabilidade química", "Não melhora usinabilidade", "Não atua contra oxidação superficial", "Não melhora resistência em altas temperaturas", "Atua em conjunto com níquel", "Não melhora resistência ambiental", "Não melhora soldabilidade", "É comum em aços expostos", "Atua sem grandes mudanças mecânicas", "Contribui para resistência ao impacto", "Não aumenta resistência mecânica geral", "Atua na durabilidade", "Não forma carbonetos duros", "Atua mais quimicamente que estruturalmente", "Está ligado à resistência ao impacto"], "informal": ["Rei dos fios elétricos.","Cria aquela ferrugem 'bonita' mas não protetora.","Cor avermelhada clássica.","Mata bactérias por contato.","O primeiro metal que a humanidade dominou.","Faz o aço aguentar impactos por décadas.","O metal das moedas antigas e estátuas.","Excelente para espalhar o calor.","Ingrediente secreto do bronze e latão.","Protege o metal do impacto."] },
-            "Tungstênio": { "formal": ["Aumenta significativamente a dureza", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Não atua fortemente em altas temperaturas", "Mantém dureza a quente", "É essencial em aços rápidos", "Forma carbonetos extremamente duros", "Aumenta a resistência mecânica", "Contribui para ferramentas de corte", "Melhora resistência ao revenido", "Não melhora usinabilidade", "Reduz a ductilidade", "Atua em aplicações extremas", "Melhora estabilidade térmica", "Contribui para longa vida útil", "Não atua como desoxidante", "Aumenta resistência estrutural", "Atua em conjunto com cobalto", "Não melhora desempenho sob calor intenso", "Melhora a resistência à corrosão", "Atua em aços ferramenta", "Contribui para dureza profunda", "Atua fortemente em tratamentos térmicos", "É um elemento pesado", "Aumenta custo do aço", "Atua onde a dureza é extrema", "Não melhora resistência ao desgaste severo", "Mantém propriedades em serviço pesado", "Está ligado a aplicações industriais críticas", "É símbolo de dureza e resistência"], "informal": ["O metal mais difícil de derreter do universo.","Ponta das brocas que furam parede (Vídia).","Filamento de lâmpadas que brilham forte.","Pesado quase como o ouro.","O rei do corte industrial (Aço Rápido).","Alianças que nunca riscam.","O segurança que não sai do lugar no calor.","'Come' o esmeril se você tentar lixar.","Conhecido como Wolfram.","Sinônimo de dureza extrema."] }
+            "Carbono": {
+                "prime": ["Principal responsável por transformar ferro em aço", "Aumenta significativamente a resistência mecânica", "Contribui fortemente para o aumento da dureza", "Reduz a ductilidade do material", "Está presente em praticamente todos os aços", "É o elemento de liga mais fundamental", "Dá a 'alma' ao metal", "Sem ele, não existe aço", "O mestre da dureza básica."],
+                "formal": ["Este elemento é o principal responsável por transformar ferro em aço", "Pequenas quantidades já alteram drasticamente a dureza", "Aumenta significativamente a resistência mecânica", "Contribui fortemente para o aumento da dureza", "Reduz a ductilidade do material", "Em excesso, torna o aço mais frágil", "Afeta diretamente a soldabilidade de forma negativa", "Está presente em praticamente todos os aços", "Seu controle é essencial em tratamentos térmicos", "Atua como elemento endurecedor básico", "Influencia a resistência ao desgaste", "Não aumenta a resistência à abrasão", "É decisivo para a formação de martensita", "Quanto maior seu teor, mais difícil é a usinagem", "Não melhora a resistência à corrosão", "Não atua como desoxidante principal", "É o elemento de liga mais fundamental", "Está associado à perda de tenacidade em altos teores", "Afeta o equilíbrio entre dureza e ductilidade", "É o primeiro elemento considerado no projeto de um aço", "Geralmente piora o desempenho em altas temperaturas", "Está ligado ao aumento da resistência ao impacto apenas em baixos teores", "Controla o limite de escoamento", "Influencia diretamente a microestrutura", "Seu excesso pode causar trincas", "É essencial, mas perigoso se mal dosado", "Interfere negativamente na soldagem", "Atua em quase todas as propriedades mecânicas", "É o elemento mais simples e mais importante", "Sem ele, não existe aço"], 
+                "informal": ["Define se o aço vira arame ou uma faca de corte.","É o 'combustível' da têmpera.","Inimigo número 1 do soldador.","Dá a 'alma' ao metal.","Responsável por aquele fio de navalha duradouro.","Em níveis baixos, é fácil de amassar com a mão.","Faz o metal 'gritar' se resfriar rápido demais.","O elemento mais barato para ganhar força.","Muito abundante na natureza.","O mestre da dureza básica."] 
+            },
+            "Manganês": {
+                "prime": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Atua como desoxidante no aço líquido", "Melhora a resistência à corrosão", "Tem papel importante na desoxidação", "Fica mais resistente graças a sua ação desoxidante."],
+                "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Não melhora a temperabilidade", "Atua como desoxidante no aço líquido", "Ajuda a neutralizar os efeitos do enxofre", "Não melhora a resistência ao desgaste", "Não contribui para a resistência à abrasão", "Não aumenta a resistência ao impacto", "Não reduz drasticamente a soldabilidade", "É comum em aços estruturais", "Melhora a qualidade metalúrgica do aço", "Auxilia na remoção de impurezas", "Atua em conjunto com o carbono", "Aumenta a resistência sem fragilizar tanto", "Ajuda no controle da microestrutura", "Melhora a resistência à corrosão", "Atua fortemente em tratamentos térmicos", "Reduz defeitos causados pelo enxofre", "Melhora a homogeneidade do aço", "É um elemento de liga de baixo custo", "Muito usado em aços comerciais", "Contribui para a resistência em aplicações mecânicas", "Não atua em altas temperaturas", "Não é um elemento nobre", "Tem papel importante na desoxidação", "Aumenta a resistência geral do aço", "Atua na formação de soluções sólidas", "Melhora propriedades sem comprometer muito a ductilidade", "É comum em quase todos os aços carbono", "Atua mais como reforço estrutural do que químico"], 
+                "informal": ["O faxineiro do aço líquido.","Segredo dos trilhos de trem pesados.","Fica mais resistente graças a sua ação desoxidante.","Impede que o enxofre destrua a liga.","O braço direito do Carbono.","Brasil é um dos maiores produtores.","Evita que o aço vire 'biscoito' ao forjar.","Limpa o oxigênio na fabricação.","O elemento do equilíbrio industrial.","Essencial para pontes e prédios."] 
+            },
+            "Fósforo": {
+                "prime": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Reduz significativamente a ductilidade", "É considerado um elemento indesejável em muitos aços", "Pequenas quantidades já causam efeitos negativos", "Pode melhorar levemente a usinabilidade", "Melhora a resistência à corrosão", "Pode aumentar a resistência, mas com custo mecânico"],
+                "formal": ["Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Reduz significativamente a ductilidade", "Prejudica a tenacidade", "Torna o aço mais frágil", "Não melhora a resistência ao impacto", "Pequenas quantidades já causam efeitos negativos", "É considerado um elemento indesejável em muitos aços", "Pode melhorar levemente a usinabilidade", "Não prejudica a soldabilidade", "Melhora a resistência à corrosão", "Atua negativamente em aplicações estruturais", "Aumenta a fragilidade a frio", "Seu controle é rigoroso na siderurgia", "Não melhora a resistência ao desgaste", "Pode aumentar a resistência, mas com custo mecânico", "Não atua como desoxidante", "Afeta negativamente tratamentos térmicos", "Pode causar trincas", "É tolerado apenas em pequenas quantidades", "Está associado a falhas frágeis", "Reduz a ductilidade", "Não melhora propriedades em altas temperaturas", "Não melhora a temperabilidade", "É mais prejudicial do que benéfico", "É difícil de remover do aço", "Aumenta o risco de fratura", "Atua negativamente na integridade estrutural", "É evitado em aços de qualidade", "É um elemento de controle crítico"], 
+                "informal": ["O sal do aço: um pouquinho ajuda, muito estraga.","Faz o metal quebrar como vidro no frio.","Um 'mal necessário' em algumas receitas.","Dá brilho, mas tira a segurança.","O pesadelo dos engenheiros estruturais.","Muito comum em fertilizantes também.","Aumenta a dureza de forma barata e perigosa.","O perigo silencioso da metalurgia.","Difícil de expulsar da liga.","Pode causar trincas fantasmas."] 
+            },
+            "Enxofre": {
+                "prime": ["Reduz a ductilidade do aço", "Melhora a usinabilidade", "Seu excesso compromete o aço", "Aumenta a probabilidade de falhas", "É evitado em aços estruturais", "Tem cheiro de ovo podre na forma pura."],
+                "formal": ["Reduz a ductilidade do aço", "Prejudica a resistência mecânica", "Aumenta a fragilidade", "Melhora a usinabilidade", "Forma inclusões indesejáveis", "Não melhora a resistência ao impacto", "Não prejudica a soldabilidade", "É considerado uma impureza", "Atua negativamente na tenacidade", "Pode causar trincas a quente", "Não melhora a resistência à corrosão", "Reduz a qualidade estrutural", "É controlado rigorosamente", "Atua negativamente em aplicações críticas", "Pode ser neutralizado pelo manganês", "Não melhora a dureza", "Não melhora a temperabilidade", "Aumenta a fragilidade intergranular", "É tolerado apenas em aços de fácil usinagem", "Prejudica o desempenho mecânico geral", "Não atua como desoxidante", "Forma sulfetos frágeis", "Afeta negativamente tratamentos térmicos", "Reduz a resistência ao impacto", "Aumenta a probabilidade de falhas", "Não melhora resistência ao desgaste", "Atua como elemento indesejável", "Seu excesso compromete o aço", "Está associado a defeitos metalúrgicos", "É evitado em aços estruturais"], 
+                "informal": ["Tem cheiro de ovo podre na forma pura.","O queridinho de quem faz parafusos rápidos.","Faz o metal 'desfarelar' na usinagem.","Inimigo mortal da solda perfeita.","Causa trincas durante a forja (quente).","O lubrificante barato das ferramentas.","Se não tiver Manganês por perto, ele mata o aço.","Vem muitas vezes do carvão e minérios.","Pequenas 'manchas' na estrutura interna.","O vilão da integridade mecânica."] 
+            },
+            "Silício": {
+                "prime": ["Atua como desoxidante", "Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Melhora a resistência à corrosão", "Aumenta a resistência à oxidação", "Melhora a resistência em ambientes agressivos", "Melhora a resistência à oxidação superficial", "Essencial para transformadores elétricos."],
+                "formal": ["Atua como desoxidante", "Aumenta a resistência mecânica", "Contribui para o aumento da dureza", "Melhora a resistência à corrosão", "Aumenta a resistência à oxidação", "Não reduz drasticamente a ductilidade", "Melhora propriedades elásticas", "Atua na limpeza do aço", "É comum em aços estruturais", "Ajuda na qualidade metalúrgica", "Melhora a resistência em ambientes agressivos", "Atua positivamente na microestrutura", "Não melhora a usinabilidade", "Não prejudica fortemente a soldabilidade", "Aumenta a resistência geral", "Atua como elemento auxiliar", "Melhora a resistência ao envelhecimento", "É usado em aços elétricos", "Não melhora resistência ao impacto", "Contribui para estabilidade estrutural", "Não aumenta a resistência em altas temperaturas", "Não melhora a temperabilidade", "Atua na redução de impurezas", "Melhora propriedades físicas", "Atua sem causar fragilidade excessiva", "É um elemento de liga comum", "Atua em baixos teores", "Melhora a resistência à oxidação superficial", "Não é um elemento nobre", "Atua mais quimicamente do que mecanicamente"], 
+                "informal": ["O mestre das molas.","Essencial para transformadores elétricos.","Vem basicamente da areia.","Faz o metal líquido correr como água.","O cérebro da eletrônica moderna.","Tira as bolhas do metal derretido.","Garante que a faca dobre e não quebre.","Protege o metal do oxigênio.","O elemento do flexibilidade.","Dá resistência sem ser pesado."] 
+            },
+            "Níquel": {
+                "prime": ["Aumenta significativamente a resistência ao impacto", "Mantém boa ductilidade mesmo com alta resistência", "O metal das moedas.", "Elemento 'nobre' e caro.", "Usado em cordas de guitarra.", "O segredo dos motores de avião.", "Traz a confiança para peças que vibram muito.", "Faz o aço inox ser tenaz e dócil.", "Amigo da pancada pesada."],
+                "formal": ["Aumenta significativamente a resistência ao impacto", "Melhora a tenacidade do aço", "Mantém boa ductilidade mesmo com alta resistência", "Não contribui para a resistência mecânica", "Atua positivamente em baixas temperaturas", "Não melhora a resistência à corrosão", "É comum em aços inoxidáveis", "Não aumenta excessivamente a dureza", "Ajuda a evitar fraturas frágeis", "Atua na estabilidade da microestrutura", "Melhora a resistência à fadiga", "Não prejudica severamente a soldabilidade", "Contribui para aplicações estruturais críticas", "É usado quando se busca equilíbrio mecânico", "Atua melhor combinado com cromo", "Não melhora a usinabilidade", "Aumenta a resistência sem fragilizar", "Melhora o comportamento em impacto", "É comum em aços de alta tenacidade", "Não atua como desoxidante", "Atua em aplicações criogênicas", "Melhora propriedades mecânicas gerais", "Não melhora resistência à abrasão", "Contribui para estabilidade dimensional", "Atua mais mecanicamente do que quimicamente", "Não melhora a temperabilidade de forma dominante", "É um elemento relativamente caro", "Associado a aços de alto desempenho", "Melhora a vida útil do material", "Está ligado à resistência e tenacidade"], 
+                "informal": ["O metal das moedas.","Aguenta o frio do Alasca sem trincar.","Dá um brilho amarelado luxuoso.","Elemento 'nobre' e caro.","Usado em cordas de guitarra.","O segredo dos motores de avião.","Traz a confiança para peças que vibram muito.","Faz o aço inox ser tenaz e dócil.","Amigo da pancada pesada.","Não gosta de ser magnético."] 
+            },
+            "Cromo": {
+                "prime": ["Aumenta significativamente a resistência à corrosão", "Contribui para o aumento da dureza", "Melhora a resistência ao desgaste", "Atua fortemente em altas temperaturas", "Aumenta a resistência à abrasão", "Melhora a temperabilidade", "É essencial em aços inoxidáveis", "Atua positivamente em tratamentos térmicos", "Aumenta a resistência à oxidação", "Aumenta a resistência ao calor", "Aumenta a dureza sem depender só do carbono", "O rei do Aço Inox.", "Superfície muito dura.", "Inimigo do desgaste."],
+                "formal": ["Aumenta significativamente a resistência à corrosão", "Contribui para o aumento da dureza", "Melhora a resistência ao desgaste", "Aumenta a resistência à abrasão", "Atua fortemente em altas temperaturas", "Melhora a temperabilidade", "Forma carbonetos duros", "É essencial em aços inoxidáveis", "Não aumenta a resistência mecânica", "Contribui para maior vida útil", "Melhora o desempenho em ambientes agressivos", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a resistência à oxidação", "Contribui para estabilidade microestrutural", "Atua tanto mecanicamente quanto quimicamente", "Não atua como desoxidante principal", "É usado em ferramentas e moldes", "Aumenta a resistência ao calor", "Melhora resistência ao desgaste superficial", "Não dificulta a soldabilidade", "É comum em aços especiais", "Atua em aplicações de alta exigência", "Melhora resistência química", "Aumenta a dureza sem depender só do carbono", "Contribui para resistência estrutural", "Atua em conjunto com níquel", "Está associado à proteção contra corrosão", "É um dos elementos mais importantes de liga"], 
+                "informal": ["Cria uma 'pele' invisível anti-ferrugem.","Famoso em torneiras e para-choques brilhantes.","O rei do Aço Inox.","Aguenta o fogo sem descascar.","Deixa a faca difícil de amolar, mas eterna.","Protege contra o limão e a maresia.","O elemento do design e da higiene.","Dá o status 'premium' ao metal.","Superfície muito dura.","Inimigo do desgaste."] 
+            },
+            "Molibdênio": {
+                "prime": ["Aumenta a resistência em altas temperaturas", "Melhora significativamente a temperabilidade", "Melhora a resistência à corrosão", "Aumenta a resistência ao desgaste", "É usado em aços de alta temperatura", "É um elemento de liga nobre", "Está ligado a resistência térmica e mecânica", "O mestre do calor extremo.", "Elemento muito denso e pesado."],
+                "formal": ["Aumenta a resistência em altas temperaturas", "Melhora significativamente a temperabilidade", "Não contribui para a resistência mecânica", "Aumenta a resistência à fluência", "Melhora a resistência à corrosão", "Atua fortemente em aços de alta performance", "Evita fragilização em serviço", "Melhora o desempenho sob carga contínua", "Atua em conjunto com cromo", "Aumenta a resistência ao desgaste", "Melhora a usinabilidade", "Não reduz a ductilidade", "Contribui para estabilidade térmica", "Melhora resistência à fadiga", "Atua em aplicações críticas", "Não atua como desoxidante", "Aumenta a vida útil do material", "É usado em aços de alta temperatura", "Contribui para resistência química", "Melhora a resistência estrutural", "Atua em ambientes severos", "Não aumenta a resistência mecânica sem depender do carbono", "É um elemento de liga nobre", "Melhora comportamento em serviço prolongado", "Atua contra a fragilização por revenido", "Aumenta a confiabilidade do aço", "É comum em aços ligados especiais", "Atua fortemente em tratamentos térmicos", "Contribui para desempenho extremo", "Está ligado a resistência térmica e mecânica"], 
+                "informal": ["O mestre do calor extremo.","Favorito para chassis de carros de corrida (Chromoly).","Segura as pontas quando o metal fica vermelho.","Usado em brocas que furam metal grosso.","Peças de petróleo no fundo do mar.","O reforço invisível das ligas de elite.","Elemento muito denso e pesado.","Evita que o aço amoleça no trabalho duro.","Aliado das altas pressões.","O braço forte da engenharia moderna."] 
+            },
+            "Vanádio": {
+                "prime": ["Aumenta significativamente a resistência mecânica", "Melhora a resistência estrutural", "Melhora propriedades mecânicas gerais", "Contribui para resistência em altas temperaturas", "Está ligado à alta resistência", "Símbolo gravado nas melhores chaves de boca.", "Permite fazer ferramentas finas e indestrutíveis."],
+                "formal": ["Aumenta significativamente a resistência mecânica", "Não contribui para o aumento da dureza", "Forma carbonetos muito duros", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Atua na refinação do grão", "Melhora a resistência estrutural", "Contribui para maior limite de escoamento", "Atua fortemente em aços ferramenta", "Melhora a estabilidade microestrutural", "Não melhora a usinabilidade", "Não reduz a ductilidade", "Atua positivamente em tratamentos térmicos", "Aumenta a vida útil do material", "Contribui para resistência à fadiga", "Atua em aplicações de alta exigência", "Não atua como desoxidante principal", "Não aumenta a resistência ao desgaste superficial", "Melhora propriedades mecânicas gerais", "Atua em conjunto com cromo", "Contribui para resistência em altas temperaturas", "É comum em aços microligados", "Melhora desempenho sob carga", "Atua como reforço estrutural", "Não melhora resistência à corrosão", "Contribui para microestrutura mais fina", "Atua fortemente na resistência em altas temperaturas", "É usado em pequenas quantidades", "Melhora confiabilidade do aço", "Está ligado à alta resistência"], 
+                "informal": ["Símbolo gravado nas melhores chaves de boca.","Dá ao aço um corte 'agressivo'.","Refina os grãos internos como um microscópio.","O metal do torque infinito.","Permite fazer ferramentas finas e indestrutíveis.","Nome inspirado em uma deusa nórdica.","Inimigo da fadiga mecânica.","Traz a 'confiança' ao mecânico profissional.","O toque final das ligas especiais.","Dá longevidade extrema ao fio."] 
+            },
+            "Alumínio": {
+                "prime": ["Atua como desoxidante", "Aumenta a resistência à oxidação", "Melhora resistência superficial à oxidação", "Famoso por latinhas e aviões.", "O metal mais leve da lista.", "Reciclável infinitas vezes.", "O elemento mais abundante na crosta da Terra.", "Aparece em quase tudo, da cozinha ao foguete."],
+                "formal": ["Atua como desoxidante", "Melhora a limpeza do aço", "Contribui para refino de grão", "Aumenta a resistência à oxidação", "Melhora estabilidade metalúrgica", "Atua em pequenas quantidades", "Não aumenta significativamente a dureza", "Não melhora resistência mecânica diretamente", "Melhora propriedades químicas", "Atua no controle de inclusões", "Melhora a qualidade estrutural", "Não melhora a usinabilidade", "Não prejudica fortemente a ductilidade", "Atua na estabilidade microestrutural", "É usado como elemento auxiliar", "Não melhora resistência ao desgaste", "Atua em aços calmados", "Melhora resistência superficial à oxidação", "Não melhora resistência ao impacto", "Atua no controle metalúrgico", "É essencial na produção de aço limpo", "Atua quimicamente mais do que mecanicamente", "Não melhora temperabilidade", "É comum em processos siderúrgicos", "Não melhora resistência à corrosão geral", "Atua na prevenção de defeitos", "Contribui para qualidade do material", "Não atua em altas temperaturas", "É um elemento leve e reativo", "Atua nos bastidores da resistência"], 
+                "informal": ["Famoso por latinhas e aviões.","O metal mais leve da lista.","Tira o oxigênio 'na marra' da fabricação.","Reciclável infinitas vezes.","Aparece em quase tudo, da cozinha ao foguete.","Reflete o calor como um espelho.","O elemento mais abundante na crosta da Terra.","Acalma o banho de metal fervente.","Protegeção branca e fosca.","O guardião da pureza do aço."] 
+            },
+            "Cobalto": {
+                "prime": ["Aumenta a resistência em altas temperaturas", "Melhora a resistência ao calor", "Contribui para estabilidade térmica", "Melhora a resistência à corrosão", "Contribui para desempenho térmico", "Aumenta confiabilidade em altas temperaturas", "A 'cola' que segura o tungstênio nas brocas.", "Usado em turbinas de aviões a jato."],
+                "formal": ["Aumenta a resistência em altas temperaturas", "Melhora a resistência ao calor", "Atua em aços de alta performance", "Contribui para estabilidade térmica", "Melhora propriedades mecânicas em serviço quente", "Melhora a resistência à corrosão", "Não atua como desoxidante", "É usado em aços especiais", "Melhora desempenho em ferramentas", "Atua em aplicações extremas", "Aumenta a dureza a quente", "Contribui para resistência estrutural", "Não melhora usinabilidade", "Não reduz a ductilidade", "Atua em conjunto com tungstênio", "Melhora resistência ao revenido", "Contribui para desempenho térmico", "É relativamente raro", "Aumenta confiabilidade em altas temperaturas", "Atua mais termicamente do que mecanicamente", "Não melhora resistência ao impacto", "Atua em aços rápidos", "Contribui para estabilidade dimensional", "Não melhora soldabilidade", "Atua em aplicações industriais severas", "Aumenta a vida útil em calor", "Não melhora resistência à abrasão", "É um elemento de liga caro", "Atua em ferramentas de corte", "Está ligado a desempenho em altas temperaturas"], 
+                "informal": ["Dá uma cor azul profunda maravilhosa.","A 'cola' que segura o tungstênio nas brocas.","Essencial para ímãs superpoderosos.","Usado em turbinas de aviões a jato.","Aguenta o atrito que derreteria outros metais.","Elemento de mineração perigosa e rara.","Não deixa o aço 'relaxar' no calor.","Superligas espaciais amam ele.","O metal do desempenho extremo.","Íntimo dos cortes cirúrgicos industriais."] 
+            },
+            "Chumbo": {
+                "prime": ["Melhora significativamente a usinabilidade", "Prejudica propriedades mecânicas", "É tóxico", "Está ligado exclusivamente à usinabilidade", "O metal mais macio e pesado.", "O pesadelo ecológico se mal usado."],
+                "formal": ["Melhora significativamente a usinabilidade", "Facilita o corte e a remoção de cavaco", "Não melhora resistência mecânica", "Não aumenta a dureza", "Não reduz a soldabilidade", "Prejudica propriedades mecânicas", "Atua negativamente na resistência estrutural", "É usado apenas em aplicações específicas", "Não melhora resistência ao impacto", "Atua como lubrificante interno", "Não reduz a ductilidade", "Não melhora resistência à corrosão", "Atua apenas em pequenas quantidades", "É tóxico", "Não atua em tratamentos térmicos", "Melhora produtividade de usinagem", "Prejudica a tenacidade", "Não melhora resistência ao desgaste", "É usado em aços de fácil usinagem", "Não atua como desoxidante", "Pode causar problemas metalúrgicos", "Reduz qualidade estrutural", "Atua apenas para fabricação", "Não melhora resistência em altas temperaturas", "É evitado em aços estruturais", "Atua mais no processo do que no produto final", "Não melhora propriedades mecânicas", "Facilita fabricação em série", "É um elemento controverso", "Está ligado exclusivamente à usinabilidade"], 
+                "informal": ["O metal mais macio e pesado.","Protege você no dentista (Raio-X).","O pesadelo ecológico se mal usado.","Faz a broca deslizar como se fosse manteiga.","Derrete até no fogão de casa.","Não deixa o sino tocar (abafa o som).","O rei da produtividade barata.","Muito denso, pouco resistente.","Pesa na balança, mas não na dureza.","O 'mordomo' do torneiro mecânico."] 
+            },
+            "Cobre": {
+                "prime": ["Atua contra impactos", "Está ligado à resistência ao impacto", "Ingrediente secreto do bronze e latão.", "Cor avermelhada clássica.", "Rei dos fios elétricos.", "Protege o metal do impacto.", "O primeiro metal que a humanidade dominou.", "Mata bactérias por contato."],
+                "formal": ["Não melhora a resistência à corrosão", "Atua contra impactos", "Contribui para durabilidade do aço", "Não aumenta significativamente a dureza", "Não melhora resistência ao desgaste", "Atua em pequenas quantidades", "Não reduz a ductilidade", "Não melhora resistência em ambientes externos", "Não melhora a temperabilidade", "Não atua como desoxidante", "Pode causar fragilização a quente", "É usado em aços patináveis", "Aumenta a vida útil estrutural", "Atua quimicamente", "Melhora a resistência ao impacto", "Contribui para estabilidade química", "Não melhora usinabilidade", "Não atua contra oxidação superficial", "Não melhora resistência em altas temperaturas", "Atua em conjunto com níquel", "Não melhora resistência ambiental", "Não melhora soldabilidade", "É comum em aços expostos", "Atua sem grandes mudanças mecânicas", "Contribui para resistência ao impacto", "Não aumenta resistência mecânica geral", "Atua na durabilidade", "Não forma carbonetos duros", "Atua mais quimicamente que estruturalmente", "Está ligado à resistência ao impacto"], 
+                "informal": ["Rei dos fios elétricos.","Cria aquela ferrugem 'bonita' mas não protetora.","Cor avermelhada clássica.","Mata bactérias por contato.","O primeiro metal que a humanidade dominou.","Faz o aço aguentar impactos por décadas.","O metal das moedas antigas e estátuas.","Excelente para espalhar o calor.","Ingrediente secreto do bronze e latão.","Protege o metal do impacto."] 
+            },
+            "Tungstênio": {
+                "prime": ["Aumenta significativamente a dureza", "Mantém dureza a quente", "Aumenta a resistência mecânica", "Reduz a ductilidade", "Aumenta resistência estrutural", "Melhora a resistência à corrosão", "Atua em aços ferramenta", "É um elemento pesado", "Atua onde a dureza é extrema", "É símbolo de dureza e resistência", "O metal mais difícil de derreter do universo.", "Pesado quase como o ouro.", "Sinônimo de dureza extrema."],
+                "formal": ["Aumenta significativamente a dureza", "Não melhora a resistência ao desgaste", "Não aumenta a resistência à abrasão", "Não atua fortemente em altas temperaturas", "Mantém dureza a quente", "É essencial em aços rápidos", "Forma carbonetos extremamente duros", "Aumenta a resistência mecânica", "Contribui para ferramentas de corte", "Melhora resistência ao revenido", "Não melhora usinabilidade", "Reduz a ductilidade", "Atua em aplicações extremas", "Melhora estabilidade térmica", "Contribui para longa vida útil", "Não atua como desoxidante", "Aumenta resistência estrutural", "Atua em conjunto com cobalto", "Não melhora desempenho sob calor intenso", "Melhora a resistência à corrosão", "Atua em aços ferramenta", "Contribui para dureza profunda", "Atua fortemente em tratamentos térmicos", "É um elemento pesado", "Aumenta custo do aço", "Atua onde a dureza é extrema", "Não melhora resistência ao desgaste severo", "Mantém propriedades em serviço pesado", "Está ligado a aplicações industriais críticas", "É símbolo de dureza e resistência"], 
+                "informal": ["O metal mais difícil de derreter do universo.","Ponta das brocas que furam parede (Vídia).","Filamento de lâmpadas que brilham forte.","Pesado quase como o ouro.","O rei do corte industrial (Aço Rápido).","Alianças que nunca riscam.","O segurança que não sai do lugar no calor.","'Come' o esmeril se você tentar lixar.","Conhecido como Wolfram.","Sinônimo de dureza extrema."] 
+            }
         };
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -604,7 +672,11 @@
         let playerActionTaken = false;
         let currentEvent = null;
         let isFirstRound = true;
+        let turnClicks = 0; 
         
+        // GLOBAL PARA CONTROLAR REPETIÇÃO
+        let elementUsageCount = {};
+
         // Estado dos Novos Eventos
         let betPot = 0;
         let underdogId = null;
@@ -618,6 +690,7 @@
         let configChaos = false;
         let configRandomOrder = false;
         let configNoConsult = false;
+        let configEasyMode = false;
         
         // ESTADO DO TIMER
         let timerInterval = null;
@@ -631,7 +704,7 @@
             'LIMIT': 'LIMITE DE DICAS: Apenas 5 dicas disponíveis nesta rodada.',
             'CHAOS': 'ORDEM ALEATÓRIA: A vez não segue a ordem normal dos jogadores.',
             'BET': 'MODO APOSTA: O vencedor leva o pote acumulado!',
-            'UNDERDOG': 'AZARÃO NO COMANDO: O último colocado joga com 2 dicas por turno.',
+            'UNDERDOG': 'AZARÃO NO COMANDO: O último colocado tem dicas extras!',
             'CAPITALIST': 'LOJA ABERTA: Compre poderes especiais com seus pontos.',
             'BLIND': 'RODADA CEGA: Pontos ocultos e as dicas somem ao passar a vez! Memória é tudo.'
         };
@@ -641,7 +714,8 @@
             'ceifador': 'Quando um player chegar a 10 pontos, ele deve ELIMINAR um oponente para continuar jogando (volta para 5 pontos).',
             'caos': 'Modo em que TODAS as rodadas são especiais (Inclusive a primeira)! Prepare-se para a bagunça.',
             'noconsult': 'Remove o botão da Tabela de Consulta durante o jogo. Para quem manja de verdade!',
-            'randomorder': 'Em vez de seguir a ordem de cadastro (P1, P2...), o jogo embaralha e decide quem começa e a sequência dos turnos.'
+            'randomorder': 'Em vez de seguir a ordem de cadastro (P1, P2...), o jogo embaralha e decide quem começa e a sequência dos turnos.',
+            'easy': 'MODO FÁCIL: Permite desbloquear 3 dicas por turno. Uma ajuda extra para quem precisa!'
         };
 
         // Referência e Histórico
@@ -713,6 +787,7 @@
             configChaos = document.getElementById('config-chaos').checked;
             configRandomOrder = document.getElementById('config-random-order').checked;
             configNoConsult = document.getElementById('config-no-consult').checked;
+            configEasyMode = document.getElementById('config-easy').checked; // Lê modo fácil
 
             // Coletar Players
             players = [];
@@ -863,6 +938,9 @@
                     underdogId = udPlayer.id;
                     document.getElementById('underdog-display').classList.remove('hidden');
                     document.getElementById('underdog-name').innerText = udPlayer.name;
+                    // Atualiza texto do Azarão baseado no modo fácil
+                    const bonusText = configEasyMode ? "4 DICAS" : "2 DICAS";
+                    document.getElementById('ud-bonus-desc').innerText = bonusText;
                 }
 
                 if (currentEvent === 'CAPITALIST') {
@@ -881,28 +959,64 @@
             select.innerHTML = `<option value="" disabled selected>Selecionar elemento...</option>`;
             Object.keys(database).sort().forEach(el => select.innerHTML += `<option value="${el}">${el}</option>`);
 
+            // --- LÓGICA INTELIGENTE DE SELEÇÃO (COM PESOS) ---
             const elNames = Object.keys(database);
-            currentElement = elNames[Math.floor(Math.random() * elNames.length)];
+            let weightedList = [];
+
+            elNames.forEach(el => {
+                const count = elementUsageCount[el] || 0;
+                // Peso: Se nunca foi usado (0) = peso 10. Se já foi usado (>0) = peso 1.
+                // Isso garante alta chance de novos, mas não impossibilita repetidos.
+                const weight = (count === 0) ? 10 : 1; 
+                for(let w=0; w<weight; w++) {
+                    weightedList.push(el);
+                }
+            });
+
+            currentElement = weightedList[Math.floor(Math.random() * weightedList.length)];
+            // Incrementa contagem de uso
+            elementUsageCount[currentElement] = (elementUsageCount[currentElement] || 0) + 1;
             
             const data = database[currentElement];
-            const selected = [];
-            const informais = [...data.informal];
-            const formais = [...data.formal];
             
-            for(let i=0; i<5; i++) {
-                if (informais.length > 0) {
-                    selected.push(informais.splice(Math.floor(Math.random() * informais.length), 1)[0]);
-                }
-            }
+            // --- NOVA LÓGICA ESTRITA (UPDATE DE REQUISITO) ---
+            // Regra: 1ª Dica é sempre PRIME.
+            // Exceção: Tungstênio, Vanádio, Cromo -> 2 Primeiras são PRIME.
             
-            const rest = [...informais, ...formais];
-            const maxDicas = (currentEvent === 'LIMIT') ? 5 : 20;
+            let primePool = [...data.prime];
+            // Mistura os primes
+            primePool.sort(() => Math.random() - 0.5);
 
-            while(selected.length < maxDicas && rest.length > 0) {
-                selected.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+            // Define quantos primes obrigatórios no início
+            let numPrimes = 1; // Padrão
+            const hardElements = ["Tungstênio", "Vanádio", "Cromo"];
+            if (hardElements.includes(currentElement)) {
+                numPrimes = 2; // Força 2 para os difíceis
             }
 
-            currentDicas = selected.sort(() => Math.random() - 0.5);
+            // Seleciona os primes obrigatórios para o início
+            let selectedPrime = primePool.slice(0, numPrimes);
+
+            // Prepara o resto (Formal + Informal + Primes que sobraram)
+            // Incluir os primes que sobraram no resto garante que o jogo não fique muito difícil
+            let restPool = [...data.formal, ...data.informal];
+            let unusedPrimes = primePool.slice(numPrimes);
+            restPool = [...restPool, ...unusedPrimes];
+
+            // Filtra duplicatas (apenas segurança, pois as listas deveriam ser distintas)
+            restPool = restPool.filter(clue => !selectedPrime.includes(clue));
+
+            // Embaralha o resto
+            restPool.sort(() => Math.random() - 0.5);
+
+            // Preenche o total necessário
+            let totalNeeded = (currentEvent === 'LIMIT') ? 5 : 20;
+            let fillNeeded = totalNeeded - selectedPrime.length;
+            let selectedRest = restPool.slice(0, fillNeeded);
+
+            // Monta array final: [Prime(s) Obrigatórios, ...RestoEmbaralhado]
+            currentDicas = [...selectedPrime, ...selectedRest];
+
             playerActionTaken = false;
             
             if (!keepPlayer) rotatePlayer();
@@ -1093,6 +1207,7 @@
 
             shopActionUsed = false;
             underdogClicks = 0;
+            turnClicks = 0; // Reset do contador de cliques por turno
 
             if (currentEvent === 'CHAOS') {
                 let available = activePlayers.filter(p => p.id !== players[currentPlayerIdx]?.id);
@@ -1166,8 +1281,11 @@
             const p = players[currentPlayerIdx];
             const isUnderdog = (currentEvent === 'UNDERDOG' && p.id === underdogId);
             
-            if (playerActionTaken && !isUnderdog) return;
-            if (isUnderdog && underdogClicks >= 2) return;
+            // Definição de limites de clique
+            let maxClicks = configEasyMode ? 3 : 1;
+            if (isUnderdog) maxClicks = configEasyMode ? 4 : 2;
+
+            if (turnClicks >= maxClicks) return;
             
             playClick();
             
@@ -1187,10 +1305,10 @@
                 histList.prepend(pHist);
             }
 
-            if (isUnderdog) {
-                underdogClicks++;
-                if(underdogClicks >= 2) playerActionTaken = true;
-            } else {
+            turnClicks++;
+
+            // Se atingir o limite, marca ação como tomada para bloquear novas ações (se houver lógica futura de bloqueio total)
+            if (turnClicks >= maxClicks) {
                 playerActionTaken = true;
             }
         }
@@ -1231,8 +1349,10 @@
                 if (unrevealed.length > 0) {
                     const randomCard = unrevealed[Math.floor(Math.random() * unrevealed.length)];
                     randomCard.click();
-                    playerActionTaken = false; 
-                    if(currentEvent === 'UNDERDOG' && p.id === underdogId) underdogClicks = 0;
+                    // Comprar dica não deve consumir clique do turno na lógica original, mas reseta o contador se necessário
+                    // Na lógica atual, o clique é simulado, então consome o turnClicks.
+                    // Para evitar que a compra bloqueie o jogador, reduzimos o contador:
+                    turnClicks--; 
                 }
             } else if (item === 'skip') {
                 openSkipModal();
